@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Divider, Stack, Typography, Button } from '@mui/material';
 import {
   ExpandMore as ChevronDownIcon,
@@ -25,6 +25,12 @@ export const IconCollection = ({
 }: Props) => {
   const [isExpanded, setIsExpanded] = useState(_isExpanded);
 
+  useEffect(() => {
+    if (_isExpanded) {
+      setIsExpanded(true);
+    }
+  }, [_isExpanded]);
+
   return (
     <Section sx={{ py: 0 }}>
       <Button
@@ -35,17 +41,21 @@ export const IconCollection = ({
         }}
       >
         <Stack
-          sx={{ width: '100%' }}
           direction="row"
           spacing={2}
-          justifyContent="space-between"
-          alignItems="center"
+          sx={{
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            width: '100%'
+          }}
         >
           <Typography
             variant="body2"
-            color="text.secondary"
-            textTransform="uppercase"
-            fontWeight={600}
+            sx={{
+              color: 'text.secondary',
+              textTransform: 'uppercase',
+              fontWeight: 600
+            }}
           >
             {id}
           </Typography>
@@ -57,7 +67,6 @@ export const IconCollection = ({
         </Stack>
       </Button>
       <Divider />
-
       {isExpanded && (
         <IconGrid icons={icons} onMouseDown={onMouseDown} onClick={onClick} />
       )}

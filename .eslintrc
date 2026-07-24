@@ -29,10 +29,12 @@
         "react/require-default-props": [0],
         "react/prop-types": [0],
         "no-param-reassign": ["error", { "props": true, "ignorePropertyModificationsFor": ["draft"] }],
-        "arrow-body-style": ["error", "always"]
+        "arrow-body-style": ["error", "always"],
+        "import/no-cycle": "warn"
     },
     "ignorePatterns": [
         "/dist",
-        "/node_modules"
+        "/node_modules",
+        "**/*.svg"
     ]
 }

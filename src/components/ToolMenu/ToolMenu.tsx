@@ -1,5 +1,5 @@
-import React, { useCallback } from 'react';
-import { Stack } from '@mui/material';
+import React, { useCallback, useEffect } from 'react';
+import { Stack, Typography } from '@mui/material';
 import {
   PanToolOutlined as PanToolIcon,
   NearMeOutlined as NearMeIcon,
@@ -15,6 +15,19 @@ import { useScene } from 'src/hooks/useScene';
 import { TEXTBOX_DEFAULTS } from 'src/config';
 import { generateId } from 'src/utils';
 
+const isEditableTarget = (target: EventTarget | null) => {
+  if (!(target instanceof HTMLElement)) return false;
+
+  const tagName = target.tagName;
+
+  return (
+    tagName === 'INPUT' ||
+    tagName === 'TEXTAREA' ||
+    tagName === 'SELECT' ||
+    target.isContentEditable
+  );
+};
+
 export const ToolMenu = () => {
   const { createTextBox } = useScene();
   const mode = useUiStateStore((state) => {
@@ -27,7 +40,51 @@ export const ToolMenu = () => {
     return state.mouse.position.tile;
   });
 
-  const createTextBoxProxy = useCallback(() => {
+  const selectSelectTool = useCallback(() => {
+    uiStateStoreActions.setMode({
+      type: 'CURSOR',
+      showCursor: true,
+      mousedownItem: null
+    });
+  }, [uiStateStoreActions]);
+
+  const selectPanTool = useCallback(() => {
+    uiStateStoreActions.setMode({
+      type: 'PAN',
+      showCursor: false
+    });
+
+    uiStateStoreActions.setItemControls(null);
+  }, [uiStateStoreActions]);
+
+  const selectAddItemTool = useCallback(() => {
+    uiStateStoreActions.setItemControls({
+      type: 'ADD_ITEM'
+    });
+    uiStateStoreActions.setMode({
+      type: 'PLACE_ICON',
+      showCursor: true,
+      id: null
+    });
+  }, [uiStateStoreActions]);
+
+  const selectRectangleTool = useCallback(() => {
+    uiStateStoreActions.setMode({
+      type: 'RECTANGLE.DRAW',
+      showCursor: true,
+      id: null
+    });
+  }, [uiStateStoreActions]);
+
+  const selectConnectorTool = useCallback(() => {
+    uiStateStoreActions.setMode({
+      type: 'CONNECTOR',
+      id: null,
+      showCursor: true
+    });
+  }, [uiStateStoreActions]);
+
+  const selectTextTool = useCallback(() => {
     const textBoxId = generateId();
 
     createTextBox({
@@ -43,80 +100,95 @@ export const ToolMenu = () => {
     });
   }, [uiStateStoreActions, createTextBox, mousePosition]);
 
-  return (
-    <UiElement>
-      <Stack direction="row">
-        <IconButton
-          name="Select"
-          Icon={<NearMeIcon />}
-          onClick={() => {
-            uiStateStoreActions.setMode({
-              type: 'CURSOR',
-              showCursor: true,
-              mousedownItem: null
-            });
-          }}
-          isActive={mode.type === 'CURSOR' || mode.type === 'DRAG_ITEMS'}
-        />
-        <IconButton
-          name="Pan"
-          Icon={<PanToolIcon />}
-          onClick={() => {
-            uiStateStoreActions.setMode({
-              type: 'PAN',
-              showCursor: false
-            });
+  useEffect(() => {
+    const toolShortcuts: Record<string, () => void> = {
+      Digit1: selectSelectTool,
+      Digit2: selectPanTool,
+      Digit3: selectAddItemTool,
+      Digit4: selectRectangleTool,
+      Digit5: selectConnectorTool,
+      Digit6: selectTextTool
+    };
 
-            uiStateStoreActions.setItemControls(null);
-          }}
-          isActive={mode.type === 'PAN'}
-        />
-        <IconButton
-          name="Add item"
-          Icon={<AddIcon />}
-          onClick={() => {
-            uiStateStoreActions.setItemControls({
-              type: 'ADD_ITEM'
-            });
-            uiStateStoreActions.setMode({
-              type: 'PLACE_ICON',
-              showCursor: true,
-              id: null
-            });
-          }}
-          isActive={mode.type === 'PLACE_ICON'}
-        />
-        <IconButton
-          name="Rectangle"
-          Icon={<CropSquareIcon />}
-          onClick={() => {
-            uiStateStoreActions.setMode({
-              type: 'RECTANGLE.DRAW',
-              showCursor: true,
-              id: null
-            });
-          }}
-          isActive={mode.type === 'RECTANGLE.DRAW'}
-        />
-        <IconButton
-          name="Connector"
-          Icon={<ConnectorIcon />}
-          onClick={() => {
-            uiStateStoreActions.setMode({
-              type: 'CONNECTOR',
-              id: null,
-              showCursor: true
-            });
-          }}
-          isActive={mode.type === 'CONNECTOR'}
-        />
-        <IconButton
-          name="Text"
-          Icon={<TitleIcon />}
-          onClick={createTextBoxProxy}
-          isActive={mode.type === 'TEXTBOX'}
-        />
-      </Stack>
-    </UiElement>
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (!e.altKey || e.metaKey || e.ctrlKey || e.shiftKey) return;
+      if (isEditableTarget(e.target)) return;
+
+      const selectTool = toolShortcuts[e.code];
+
+      if (!selectTool) return;
+
+      e.preventDefault();
+      selectTool();
+    };
+
+    window.addEventListener('keydown', onKeyDown);
+
+    return () => {
+      window.removeEventListener('keydown', onKeyDown);
+    };
+  }, [
+    selectSelectTool,
+    selectPanTool,
+    selectAddItemTool,
+    selectRectangleTool,
+    selectConnectorTool,
+    selectTextTool
+  ]);
+
+  return (
+    <Stack spacing={0.5} sx={{ alignItems: 'flex-end' }}>
+      <Typography
+        variant="caption"
+        sx={{
+          color: 'text.secondary',
+          px: 0.5,
+          userSelect: 'none',
+          whiteSpace: 'nowrap'
+        }}
+      >
+        ⌥1–6 to switch tools
+      </Typography>
+      <UiElement>
+        <Stack direction="row">
+          <IconButton
+            name="Select (⌥1)"
+            Icon={<NearMeIcon />}
+            onClick={selectSelectTool}
+            isActive={mode.type === 'CURSOR' || mode.type === 'DRAG_ITEMS'}
+          />
+          <IconButton
+            name="Pan (⌥2)"
+            Icon={<PanToolIcon />}
+            onClick={selectPanTool}
+            isActive={mode.type === 'PAN'}
+          />
+          <IconButton
+            name="Add item (⌥3)"
+            Icon={<AddIcon />}
+            onClick={selectAddItemTool}
+            isActive={mode.type === 'PLACE_ICON'}
+          />
+          <IconButton
+            name="Rectangle (⌥4)"
+            Icon={<CropSquareIcon />}
+            onClick={selectRectangleTool}
+            isActive={mode.type === 'RECTANGLE.DRAW'}
+          />
+          <IconButton
+            name="Connector (⌥5)"
+            Icon={<ConnectorIcon />}
+            onClick={selectConnectorTool}
+            isActive={mode.type === 'CONNECTOR'}
+          />
+          <IconButton
+            name="Text (⌥6)"
+            Icon={<TitleIcon />}
+            onClick={selectTextTool}
+            isActive={mode.type === 'TEXTBOX'}
+          />
+        </Stack>
+      </UiElement>
+    </Stack>
   );
 };

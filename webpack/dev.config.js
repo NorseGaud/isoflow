@@ -16,11 +16,12 @@ module.exports = {
     static: {
       directory: path.join(__dirname, 'build')
     },
+    historyApiFallback: true,
     allowedHosts: [
       '.csb.app', // So Codesandbox.io can run the dev server
       '.ngrok-free.app'
     ],
-    port: 3000
+    port: 9323
   },
   module: {
     rules: [
@@ -33,11 +34,14 @@ module.exports = {
         test: /\.css$/i,
         use: ['style-loader', 'css-loader']
       },
-        
-        {
-          test: /\.svg$/i,
-          type: 'asset/inline'
-        }
+      {
+        test: /\.svg$/i,
+        type: 'asset/inline'
+      },
+      {
+        test: /\.wasm$/,
+        type: 'asset/resource'
+      }
     ]
   },
   resolve: {

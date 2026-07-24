@@ -7,8 +7,9 @@ import {
   DataObject as ExportJsonIcon,
   ImageOutlined as ExportImageIcon,
   FolderOpen as FolderOpenIcon,
-  DeleteOutline as DeleteOutlineIcon
+  DeleteOutlined as DeleteOutlineIcon
 } from '@mui/icons-material';
+import { useShallow } from 'zustand/react/shallow';
 import { UiElement } from 'src/components/UiElement/UiElement';
 import { IconButton } from 'src/components/IconButton/IconButton';
 import { useUiStateStore } from 'src/stores/uiStateStore';
@@ -19,9 +20,11 @@ import { MenuItem } from './MenuItem';
 
 export const MainMenu = () => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  const model = useModelStore((state) => {
-    return modelFromModelStore(state);
-  });
+  const model = useModelStore(
+    useShallow((state) => {
+      return modelFromModelStore(state);
+    })
+  );
   const isMainMenuOpen = useUiStateStore((state) => {
     return state.isMainMenuOpen;
   });
@@ -114,7 +117,6 @@ export const MainMenu = () => {
   return (
     <UiElement>
       <IconButton Icon={<MenuIcon />} name="Main menu" onClick={onToggleMenu} />
-
       <Menu
         anchorEl={anchorEl}
         open={isMainMenuOpen}
@@ -125,10 +127,12 @@ export const MainMenu = () => {
         sx={{
           mt: 2
         }}
-        MenuListProps={{
-          sx: {
-            minWidth: '250px',
-            py: 0
+        slotProps={{
+          list: {
+            sx: {
+              minWidth: '250px',
+              py: 0
+            }
           }
         }}
       >
@@ -191,7 +195,12 @@ export const MainMenu = () => {
 
               {mainMenuOptions.includes('VERSION') && (
                 <MenuItem>
-                  <Typography variant="body2" color="text.secondary">
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      color: 'text.secondary'
+                    }}
+                  >
                     Isoflow v{PACKAGE_VERSION}
                   </Typography>
                 </MenuItem>

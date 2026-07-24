@@ -26,7 +26,7 @@ interface ProviderProps {
 // TODO: Typings below are pretty gnarly due to the way Zustand works.
 // see https://github.com/pmndrs/zustand/discussions/1180#discussioncomment-3439061
 export const SceneProvider = ({ children }: ProviderProps) => {
-  const storeRef = useRef<ReturnType<typeof initialState>>();
+  const storeRef = useRef<ReturnType<typeof initialState> | null>(null);
 
   if (!storeRef.current) {
     storeRef.current = initialState();
@@ -39,17 +39,12 @@ export const SceneProvider = ({ children }: ProviderProps) => {
   );
 };
 
-export function useSceneStore<T>(
-  selector: (state: SceneStore) => T,
-  equalityFn?: (left: T, right: T) => boolean
-) {
+export function useSceneStore<T>(selector: (state: SceneStore) => T) {
   const store = useContext(SceneContext);
 
   if (store === null) {
     throw new Error('Missing provider in the tree');
   }
 
-  const value = useStore(store, selector, equalityFn);
-
-  return value;
+  return useStore(store, selector);
 }

@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { ThemeProvider } from '@mui/material/styles';
 import { Box } from '@mui/material';
+import { useShallow } from 'zustand/react/shallow';
 import { theme } from 'src/styles/theme';
 import { IsoflowProps } from 'src/types';
 import { setWindowCursor, modelFromModelStore } from 'src/utils';
@@ -27,9 +28,11 @@ const App = ({
     return state.actions;
   });
   const initialDataManager = useInitialDataManager();
-  const model = useModelStore((state) => {
-    return modelFromModelStore(state);
-  });
+  const model = useModelStore(
+    useShallow((state) => {
+      return modelFromModelStore(state);
+    })
+  );
 
   const { load } = initialDataManager;
 

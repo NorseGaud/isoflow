@@ -6,7 +6,8 @@ import {
   CoordsUtils,
   categoriseIcons,
   generateId,
-  getItemByIdOrThrow
+  getItemByIdOrThrow,
+  mergeIconsWithStoredCustomIcons
 } from 'src/utils';
 import * as reducers from 'src/stores/reducers';
 import { useModelStore } from 'src/stores/modelStore';
@@ -16,7 +17,8 @@ import { modelSchema } from 'src/schemas/model';
 
 export const useInitialDataManager = () => {
   const [isReady, setIsReady] = useState(false);
-  const prevInitialData = useRef<InitialData>();
+  const prevInitialData = useRef<InitialData | undefined>(undefined);
+  const loadIdRef = useRef(0);
   const model = useModelStore((state) => {
     return state;
   });
@@ -29,9 +31,11 @@ export const useInitialDataManager = () => {
   const { changeView } = useView();
 
   const load = useCallback(
-    (_initialData: InitialData) => {
+    async (_initialData: InitialData) => {
       if (!_initialData || prevInitialData.current === _initialData) return;
 
+      const loadId = loadIdRef.current + 1;
+      loadIdRef.current = loadId;
       setIsReady(false);
 
       const validationResult = modelSchema.safeParse(_initialData);
@@ -39,12 +43,19 @@ export const useInitialDataManager = () => {
       if (!validationResult.success) {
         // TODO: let's get better at reporting error messages here (starting with how we present them to users)
         // - not in console but in a modal
-        console.log(validationResult.error.errors);
+        console.log(validationResult.error.issues);
         window.alert('There is an error in your model.');
         return;
       }
 
-      const initialData = _initialData;
+      const icons = await mergeIconsWithStoredCustomIcons(_initialData.icons);
+
+      if (loadIdRef.current !== loadId) return;
+
+      const initialData: InitialData = {
+        ..._initialData,
+        icons
+      };
 
       if (initialData.views.length === 0) {
         const updates = reducers.view({
@@ -59,7 +70,7 @@ export const useInitialDataManager = () => {
         Object.assign(initialData, updates.model);
       }
 
-      prevInitialData.current = initialData;
+      prevInitialData.current = _initialData;
       model.actions.set(initialData);
 
       const view = getItemByIdOrThrow(

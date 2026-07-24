@@ -17,6 +17,7 @@ import {
   FormControlLabel,
   Typography
 } from '@mui/material';
+import { useShallow } from 'zustand/react/shallow';
 import { useModelStore } from 'src/stores/modelStore';
 import {
   exportAsImage,
@@ -25,7 +26,6 @@ import {
   generateGenericFilename,
   modelFromModelStore
 } from 'src/utils';
-import { ModelStore } from 'src/types';
 import { useDiagramUtils } from 'src/hooks/useDiagramUtils';
 import { useUiStateStore } from 'src/stores/uiStateStore';
 import { Isoflow } from 'src/Isoflow';
@@ -39,8 +39,8 @@ interface Props {
 }
 
 export const ExportImageDialog = ({ onClose, quality = 1.5 }: Props) => {
-  const containerRef = useRef<HTMLDivElement>();
-  const debounceRef = useRef<NodeJS.Timeout>();
+  const containerRef = useRef<HTMLDivElement | null>(null);
+  const debounceRef = useRef<NodeJS.Timeout | undefined>(undefined);
   const currentView = useUiStateStore((state) => {
     return state.view;
   });
@@ -50,9 +50,11 @@ export const ExportImageDialog = ({ onClose, quality = 1.5 }: Props) => {
   const uiStateActions = useUiStateStore((state) => {
     return state.actions;
   });
-  const model = useModelStore((state): Omit<ModelStore, 'actions'> => {
-    return modelFromModelStore(state);
-  });
+  const model = useModelStore(
+    useShallow((state) => {
+      return modelFromModelStore(state);
+    })
+  );
 
   const unprojectedBounds = useMemo(() => {
     return getUnprojectedBounds();
@@ -173,7 +175,12 @@ export const ExportImageDialog = ({ onClose, quality = 1.5 }: Props) => {
               </Box>
             </>
           )}
-          <Stack alignItems="center" spacing={2}>
+          <Stack
+            spacing={2}
+            sx={{
+              alignItems: 'center'
+            }}
+          >
             {imageData && (
               <Box
                 component="img"
@@ -217,7 +224,12 @@ export const ExportImageDialog = ({ onClose, quality = 1.5 }: Props) => {
               </Box>
             </Box>
             {imageData && (
-              <Stack sx={{ width: '100%' }} alignItems="flex-end">
+              <Stack
+                sx={{
+                  alignItems: 'flex-end',
+                  width: '100%'
+                }}
+              >
                 <Stack direction="row" spacing={2}>
                   <Button variant="text" onClick={onClose}>
                     Cancel

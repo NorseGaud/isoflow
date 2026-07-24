@@ -49,7 +49,7 @@ const getEditorModeMapping = (editorMode: keyof typeof EditorModeEnum) => {
 
 export const UiOverlay = () => {
   const theme = useTheme();
-  const contextMenuAnchorRef = useRef();
+  const contextMenuAnchorRef = useRef<HTMLDivElement | null>(null);
   const { appPadding } = theme.customVars;
   const spacing = useCallback(
     (multiplier: number) => {
@@ -189,12 +189,27 @@ export const UiOverlay = () => {
                 height: '100%'
               }}
             >
-              <Stack direction="row" alignItems="center">
-                <Typography fontWeight={600} color="text.secondary">
+              <Stack
+                direction="row"
+                sx={{
+                  alignItems: 'center'
+                }}
+              >
+                <Typography
+                  sx={{
+                    fontWeight: 600,
+                    color: 'text.secondary'
+                  }}
+                >
                   {title}
                 </Typography>
                 <ChevronRight />
-                <Typography fontWeight={600} color="text.secondary">
+                <Typography
+                  sx={{
+                    fontWeight: 600,
+                    color: 'text.secondary'
+                  }}
+                >
                   {currentView.name}
                 </Typography>
               </Stack>
@@ -219,13 +234,11 @@ export const UiOverlay = () => {
           </UiElement>
         )}
       </Box>
-
       {mode.type === 'PLACE_ICON' && mode.id && (
         <SceneLayer disableAnimation>
           <DragAndDrop iconId={mode.id} tile={mouse.position.tile} />
         </SceneLayer>
       )}
-
       {dialog === 'EXPORT_IMAGE' && (
         <ExportImageDialog
           onClose={() => {
@@ -233,10 +246,11 @@ export const UiOverlay = () => {
           }}
         />
       )}
-
       <SceneLayer>
         <Box ref={contextMenuAnchorRef} />
-        <ContextMenuManager anchorEl={contextMenuAnchorRef.current} />
+        <ContextMenuManager
+          anchorEl={contextMenuAnchorRef.current ?? undefined}
+        />
       </SceneLayer>
     </>
   );

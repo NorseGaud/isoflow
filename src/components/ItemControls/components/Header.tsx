@@ -12,9 +12,14 @@ export const Header = ({ title }: Props) => {
   return (
     <Section sx={{ py: 3 }}>
       <Grid container spacing={2}>
-        <Grid item xs={10}>
+        <Grid size={10}>
           <Box sx={{ display: 'flex', alignItems: 'center', height: '100%' }}>
-            <Typography variant="body2" color="text.secondary">
+            <Typography
+              variant="body2"
+              sx={{
+                color: 'text.secondary'
+              }}
+            >
               {title}
             </Typography>
           </Box>

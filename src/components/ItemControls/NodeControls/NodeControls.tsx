@@ -12,6 +12,7 @@ import { useUiStateStore } from 'src/stores/uiStateStore';
 import { useModelItem } from 'src/hooks/useModelItem';
 import { ControlsContainer } from '../components/ControlsContainer';
 import { Icons } from '../IconSelectionControls/Icons';
+import { UploadButton } from '../IconSelectionControls/UploadButton';
 import { NodeSettings } from './NodeSettings/NodeSettings';
 import { Section } from '../components/Section';
 
@@ -54,8 +55,10 @@ export const NodeControls = ({ id }: Props) => {
           <Stack
             direction="row"
             spacing={2}
-            alignItems="flex-end"
-            justifyContent="space-between"
+            sx={{
+              alignItems: 'flex-end',
+              justifyContent: 'space-between'
+            }}
           >
             <Box
               component="img"
@@ -104,13 +107,18 @@ export const NodeControls = ({ id }: Props) => {
         />
       )}
       {mode === 'CHANGE_ICON' && (
-        <Icons
-          key={viewItem.id}
-          iconCategories={iconCategories}
-          onClick={(_icon) => {
-            updateModelItem(viewItem.id, { icon: _icon.id });
-          }}
-        />
+        <>
+          <Section sx={{ pb: 0 }}>
+            <UploadButton />
+          </Section>
+          <Icons
+            key={viewItem.id}
+            iconCategories={iconCategories}
+            onClick={(_icon) => {
+              updateModelItem(viewItem.id, { icon: _icon.id });
+            }}
+          />
+        </>
       )}
     </ControlsContainer>
   );

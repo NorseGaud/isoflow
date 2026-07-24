@@ -3,7 +3,7 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import GlobalStyles from '@mui/material/GlobalStyles';
 import { ThemeProvider, createTheme } from '@mui/material';
-import { Examples } from './examples';
+import { App } from './app/App';
 import { themeConfig } from './styles/theme';
 
 const root = ReactDOM.createRoot(
@@ -20,7 +20,7 @@ root.render(
       }}
     />
     <ThemeProvider theme={createTheme({ ...themeConfig, palette: {} })}>
-      <Examples />
+      <App />
     </ThemeProvider>
   </React.StrictMode>
 );
