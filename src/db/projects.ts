@@ -8,7 +8,6 @@ type ProjectRow = {
   id: string;
   workspace_id: string;
   name: string;
-  is_default: number;
   model_json: string;
   created_at: number;
   updated_at: number;
@@ -19,7 +18,6 @@ const rowToProject = (row: ProjectRow): ProjectRecord => {
     id: row.id,
     workspaceId: row.workspace_id,
     name: row.name,
-    isDefault: Boolean(row.is_default),
     modelJson: row.model_json,
     createdAt: row.created_at,
     updatedAt: row.updated_at
@@ -32,10 +30,10 @@ export const listProjectsForWorkspace = async (
   const db = await getDb();
   const statement = db.prepare(
     `
-      SELECT id, workspace_id, name, is_default, model_json, created_at, updated_at
+      SELECT id, workspace_id, name, model_json, created_at, updated_at
       FROM projects
       WHERE workspace_id = ?
-      ORDER BY is_default DESC, created_at ASC
+      ORDER BY created_at ASC
     `
   );
   statement.bind([workspaceId]);
@@ -56,7 +54,7 @@ export const getProjectById = async (
   const db = await getDb();
   const statement = db.prepare(
     `
-      SELECT id, workspace_id, name, is_default, model_json, created_at, updated_at
+      SELECT id, workspace_id, name, model_json, created_at, updated_at
       FROM projects
       WHERE id = ?
     `
@@ -85,7 +83,6 @@ export const createProject = async (
     id: generateId(),
     workspaceId,
     name: trimmedName,
-    isDefault: false,
     modelJson: JSON.stringify(model),
     createdAt: now,
     updatedAt: now
@@ -103,7 +100,7 @@ export const createProject = async (
         project.id,
         project.workspaceId,
         project.name,
-        project.isDefault ? 1 : 0,
+        0,
         project.modelJson,
         project.createdAt,
         project.updatedAt
@@ -134,10 +131,6 @@ export const deleteProject = async (id: string): Promise<void> => {
   const project = await getProjectById(id);
 
   if (!project) return;
-
-  if (project.isDefault) {
-    throw new Error('The default project cannot be deleted.');
-  }
 
   await withDbWrite((db) => {
     db.run('DELETE FROM projects WHERE id = ?', [id]);

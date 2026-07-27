@@ -14,8 +14,27 @@ root.render(
   <React.StrictMode>
     <GlobalStyles
       styles={{
+        '*, *::before, *::after': {
+          boxSizing: 'border-box'
+        },
+        html: {
+          width: '100%',
+          height: '100%',
+          overflow: 'hidden'
+        },
         body: {
-          margin: 0
+          margin: 0,
+          width: '100%',
+          maxWidth: '100%',
+          height: '100%',
+          overflow: 'hidden'
+        },
+        '#root': {
+          width: '100%',
+          maxWidth: '100%',
+          height: '100%',
+          minWidth: 0,
+          overflow: 'hidden'
         }
       }}
     />

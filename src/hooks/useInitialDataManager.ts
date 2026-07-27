@@ -7,7 +7,8 @@ import {
   categoriseIcons,
   generateId,
   getItemByIdOrThrow,
-  mergeIconsWithStoredCustomIcons
+  mergeIconsWithStoredCustomIcons,
+  migrateImportedModel
 } from 'src/utils';
 import * as reducers from 'src/stores/reducers';
 import { useModelStore } from 'src/stores/modelStore';
@@ -36,9 +37,9 @@ export const useInitialDataManager = () => {
 
       const loadId = loadIdRef.current + 1;
       loadIdRef.current = loadId;
-      setIsReady(false);
 
-      const validationResult = modelSchema.safeParse(_initialData);
+      const importedData = migrateImportedModel(_initialData) as InitialData;
+      const validationResult = modelSchema.safeParse(importedData);
 
       if (!validationResult.success) {
         // TODO: let's get better at reporting error messages here (starting with how we present them to users)
@@ -48,12 +49,14 @@ export const useInitialDataManager = () => {
         return;
       }
 
-      const icons = await mergeIconsWithStoredCustomIcons(_initialData.icons);
+      setIsReady(false);
+
+      const icons = await mergeIconsWithStoredCustomIcons(importedData.icons);
 
       if (loadIdRef.current !== loadId) return;
 
       const initialData: InitialData = {
-        ..._initialData,
+        ...importedData,
         icons
       };
 

@@ -101,7 +101,7 @@ export const ProjectEditorPage = ({ user }: Props) => {
 
   if (!workspace || !project || !initialData) {
     return (
-      <AppShell user={user} breadcrumbs={[{ label: 'Workspaces', to: '/' }]}>
+      <AppShell breadcrumbs={[{ label: 'Workspaces', to: '/' }]}>
         <Typography>Project not found.</Typography>
       </AppShell>
     );
@@ -109,25 +109,34 @@ export const ProjectEditorPage = ({ user }: Props) => {
 
   return (
     <AppShell
-      user={user}
       variant="editor"
       breadcrumbs={[
         { label: 'Workspaces', to: '/' },
-        { label: workspace.name, to: `/workspaces/${workspace.id}` },
+        { label: workspace.name },
         { label: project.name }
       ]}
       actions={
-        <Stack direction="row" spacing={1} sx={{ alignItems: 'center' }}>
-          <Typography variant="body2" color="text.secondary">
+        <Stack
+          direction="row"
+          spacing={1}
+          sx={{ alignItems: 'center', minWidth: 0, flexShrink: 1 }}
+        >
+          <Typography
+            variant="body2"
+            color="text.secondary"
+            sx={{ display: { xs: 'none', sm: 'block' }, whiteSpace: 'nowrap' }}
+          >
             {saveLabel}
           </Typography>
           <Button
             variant="outlined"
+            size="small"
             onClick={() => {
-              navigate(`/workspaces/${workspace.id}`);
+              navigate('/');
             }}
+            sx={{ whiteSpace: 'nowrap' }}
           >
-            Back to projects
+            Back
           </Button>
         </Stack>
       }

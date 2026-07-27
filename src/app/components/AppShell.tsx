@@ -1,10 +1,8 @@
 import React from 'react';
-import { Box, Chip, Stack, Typography } from '@mui/material';
+import { Box, Stack, Typography } from '@mui/material';
 import { Link as RouterLink } from 'react-router-dom';
-import { UserRecord } from 'src/db';
 
 type Props = {
-  user: UserRecord;
   breadcrumbs?: { label: string; to?: string }[];
   actions?: React.ReactNode;
   variant?: 'page' | 'editor';
@@ -12,7 +10,6 @@ type Props = {
 };
 
 export const AppShell = ({
-  user,
   breadcrumbs = [],
   actions,
   variant = 'page',
@@ -21,21 +18,30 @@ export const AppShell = ({
   return (
     <Box
       sx={{
-        minHeight: variant === 'page' ? '100vh' : undefined,
-        height: variant === 'editor' ? '100vh' : undefined,
-        display: variant === 'editor' ? 'flex' : undefined,
-        flexDirection: variant === 'editor' ? 'column' : undefined,
+        boxSizing: 'border-box',
+        width: '100%',
+        maxWidth: '100%',
+        height: '100%',
+        minHeight: 0,
+        minWidth: 0,
+        overflow: 'hidden',
+        display: 'flex',
+        flexDirection: 'column',
         backgroundColor: (theme) => theme.customVars.customPalette.diagramBg
       }}
     >
       <Box
         sx={{
-          px: { xs: 2, md: 5 },
-          py: 2.5,
+          boxSizing: 'border-box',
+          width: '100%',
+          maxWidth: '100%',
+          px: { xs: 2, md: 4 },
+          py: 2,
           borderBottom: '1px solid',
           borderColor: 'grey.300',
           bgcolor: 'common.white',
-          flexShrink: 0
+          flexShrink: 0,
+          minWidth: 0
         }}
       >
         <Stack
@@ -44,11 +50,12 @@ export const AppShell = ({
           sx={{
             alignItems: 'center',
             justifyContent: 'space-between',
-            flexWrap: 'wrap',
-            gap: 2
+            gap: 2,
+            minWidth: 0,
+            width: '100%'
           }}
         >
-          <Stack spacing={1}>
+          <Stack spacing={0.75} sx={{ minWidth: 0, flex: '1 1 auto' }}>
             <Typography
               component={RouterLink}
               to="/"
@@ -56,20 +63,35 @@ export const AppShell = ({
               sx={{
                 color: 'text.primary',
                 textDecoration: 'none',
-                fontWeight: 700
+                fontWeight: 700,
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap'
               }}
             >
               Isoflow
             </Typography>
             {breadcrumbs.length > 0 && (
-              <Stack direction="row" spacing={1} sx={{ alignItems: 'center' }}>
+              <Stack
+                direction="row"
+                spacing={1}
+                sx={{
+                  alignItems: 'center',
+                  minWidth: 0,
+                  overflow: 'hidden'
+                }}
+              >
                 {breadcrumbs.map((crumb, index) => {
                   const isLast = index === breadcrumbs.length - 1;
 
                   return (
                     <React.Fragment key={`${crumb.label}-${index}`}>
                       {index > 0 && (
-                        <Typography variant="body2" color="text.secondary">
+                        <Typography
+                          variant="body2"
+                          color="text.secondary"
+                          sx={{ flexShrink: 0 }}
+                        >
                           /
                         </Typography>
                       )}
@@ -80,13 +102,26 @@ export const AppShell = ({
                           variant="body2"
                           sx={{
                             color: 'text.secondary',
-                            textDecoration: 'none'
+                            textDecoration: 'none',
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            whiteSpace: 'nowrap',
+                            minWidth: 0
                           }}
                         >
                           {crumb.label}
                         </Typography>
                       ) : (
-                        <Typography variant="body2" color="text.primary">
+                        <Typography
+                          variant="body2"
+                          color="text.primary"
+                          sx={{
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            whiteSpace: 'nowrap',
+                            minWidth: 0
+                          }}
+                        >
                           {crumb.label}
                         </Typography>
                       )}
@@ -97,23 +132,63 @@ export const AppShell = ({
             )}
           </Stack>
 
-          <Stack direction="row" spacing={2} sx={{ alignItems: 'center' }}>
-            {actions}
-            <Chip
-              label={`${user.name} (signed in)`}
-              color="primary"
-              variant="outlined"
-            />
-          </Stack>
+          {actions && (
+            <Stack
+              direction="row"
+              spacing={1.5}
+              sx={{
+                alignItems: 'center',
+                flexShrink: 0,
+                maxWidth: '50%',
+                minWidth: 0
+              }}
+            >
+              {actions}
+            </Stack>
+          )}
         </Stack>
       </Box>
 
       {variant === 'page' ? (
-        <Box sx={{ px: { xs: 2, md: 5 }, py: 4, maxWidth: 960, mx: 'auto' }}>
-          {children}
+        <Box
+          sx={{
+            boxSizing: 'border-box',
+            flex: 1,
+            minHeight: 0,
+            minWidth: 0,
+            width: '100%',
+            maxWidth: '100%',
+            overflow: 'auto',
+            px: { xs: 2, md: 4 },
+            py: { xs: 3, md: 4 }
+          }}
+        >
+          <Box
+            sx={{
+              boxSizing: 'border-box',
+              width: '100%',
+              maxWidth: 960,
+              mx: 'auto',
+              minWidth: 0
+            }}
+          >
+            {children}
+          </Box>
         </Box>
       ) : (
-        <Box sx={{ flex: 1, minHeight: 0 }}>{children}</Box>
+        <Box
+          sx={{
+            boxSizing: 'border-box',
+            flex: 1,
+            minHeight: 0,
+            minWidth: 0,
+            width: '100%',
+            maxWidth: '100%',
+            overflow: 'hidden'
+          }}
+        >
+          {children}
+        </Box>
       )}
     </Box>
   );

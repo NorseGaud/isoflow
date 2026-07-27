@@ -139,7 +139,7 @@ export const MainMenu = () => {
         <Card sx={{ py: 1 }}>
           {mainMenuOptions.includes('ACTION.OPEN') && (
             <MenuItem onClick={onOpenModel} Icon={<FolderOpenIcon />}>
-              Open
+              Import JSON
             </MenuItem>
           )}
 

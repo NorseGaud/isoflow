@@ -1,29 +1,50 @@
 import React, { useCallback, useEffect, useState } from 'react';
+import { Typography } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import {
+  createProject,
   createWorkspace,
+  deleteProject,
   deleteWorkspace,
+  listProjectsForWorkspace,
   listWorkspacesForUser,
+  ProjectRecord,
   UserRecord,
   WorkspaceRecord
 } from 'src/db';
 import { AppShell } from '../components/AppShell';
-import { EntityList } from '../components/EntityList';
 import { NameDialog } from '../components/NameDialog';
+import { WorkspaceList } from '../components/WorkspaceList';
 
 type Props = {
   user: UserRecord;
 };
 
+type CreateDialog =
+  | { type: 'workspace' }
+  | { type: 'project'; workspaceId: string }
+  | null;
+
 export const WorkspacesPage = ({ user }: Props) => {
   const navigate = useNavigate();
   const [workspaces, setWorkspaces] = useState<WorkspaceRecord[]>([]);
-  const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const [projectsByWorkspace, setProjectsByWorkspace] = useState<
+    Record<string, ProjectRecord[]>
+  >({});
+  const [createDialog, setCreateDialog] = useState<CreateDialog>(null);
   const [error, setError] = useState<string | null>(null);
 
   const refresh = useCallback(async () => {
-    const next = await listWorkspacesForUser(user.id);
-    setWorkspaces(next);
+    const nextWorkspaces = await listWorkspacesForUser(user.id);
+    const projectEntries = await Promise.all(
+      nextWorkspaces.map(async (workspace) => {
+        const projects = await listProjectsForWorkspace(workspace.id);
+        return [workspace.id, projects] as const;
+      })
+    );
+
+    setWorkspaces(nextWorkspaces);
+    setProjectsByWorkspace(Object.fromEntries(projectEntries));
   }, [user.id]);
 
   useEffect(() => {
@@ -31,55 +52,77 @@ export const WorkspacesPage = ({ user }: Props) => {
   }, [refresh]);
 
   return (
-    <AppShell
-      user={user}
-      breadcrumbs={[{ label: 'Workspaces' }]}
-    >
+    <AppShell breadcrumbs={[{ label: 'Workspaces' }]}>
       {error && (
-        <p style={{ color: '#df004c', marginTop: 0 }}>{error}</p>
+        <Typography color="secondary" sx={{ mb: 2 }}>
+          {error}
+        </Typography>
       )}
-      <EntityList
-        title="Workspaces"
-        description="Organize your diagrams into workspaces. Open the default workspace or create a new one."
-        createLabel="New workspace"
-        emptyLabel="No workspaces yet."
-        items={workspaces.map((workspace) => {
-          return {
-            id: workspace.id,
-            name: workspace.name,
-            isDefault: workspace.isDefault,
-            meta: new Date(workspace.createdAt).toLocaleString()
-          };
-        })}
-        onCreate={() => {
-          setIsCreateOpen(true);
+      <WorkspaceList
+        workspaces={workspaces}
+        projectsByWorkspace={projectsByWorkspace}
+        onCreateWorkspace={() => {
+          setCreateDialog({ type: 'workspace' });
         }}
-        onOpen={(id) => {
-          navigate(`/workspaces/${id}`);
+        onCreateProject={(workspaceId) => {
+          setCreateDialog({ type: 'project', workspaceId });
         }}
-        onDelete={async (id) => {
+        onDeleteWorkspace={async (id) => {
           try {
             setError(null);
             await deleteWorkspace(id);
             await refresh();
           } catch (err) {
-            setError(err instanceof Error ? err.message : 'Failed to delete workspace');
+            setError(
+              err instanceof Error ? err.message : 'Failed to delete workspace'
+            );
+          }
+        }}
+        onOpenProject={(workspaceId, projectId) => {
+          navigate(`/workspaces/${workspaceId}/projects/${projectId}`);
+        }}
+        onDeleteProject={async (projectId) => {
+          try {
+            setError(null);
+            await deleteProject(projectId);
+            await refresh();
+          } catch (err) {
+            setError(
+              err instanceof Error ? err.message : 'Failed to delete project'
+            );
           }
         }}
       />
 
       <NameDialog
-        open={isCreateOpen}
+        open={createDialog?.type === 'workspace'}
         title="Create workspace"
         label="Workspace name"
         onClose={() => {
-          setIsCreateOpen(false);
+          setCreateDialog(null);
         }}
         onConfirm={async (name) => {
-          setIsCreateOpen(false);
-          const workspace = await createWorkspace(user.id, name);
+          setCreateDialog(null);
+          await createWorkspace(user.id, name);
           await refresh();
-          navigate(`/workspaces/${workspace.id}`);
+        }}
+      />
+
+      <NameDialog
+        open={createDialog?.type === 'project'}
+        title="Create project"
+        label="Project name"
+        onClose={() => {
+          setCreateDialog(null);
+        }}
+        onConfirm={async (name) => {
+          if (createDialog?.type !== 'project') return;
+
+          const { workspaceId } = createDialog;
+          setCreateDialog(null);
+          const project = await createProject(workspaceId, name);
+          await refresh();
+          navigate(`/workspaces/${workspaceId}/projects/${project.id}`);
         }}
       />
     </AppShell>

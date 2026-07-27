@@ -3,19 +3,20 @@ import { Box, CircularProgress, Typography } from '@mui/material';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import { useAppUser } from './hooks/useAppUser';
 import { WorkspacesPage } from './pages/WorkspacesPage';
-import { ProjectsPage } from './pages/ProjectsPage';
 import { ProjectEditorPage } from './pages/ProjectEditorPage';
 
 const LoadingScreen = ({ message }: { message: string }) => {
   return (
     <Box
       sx={{
-        minHeight: '100vh',
+        width: '100%',
+        height: '100%',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
         flexDirection: 'column',
-        gap: 2
+        gap: 2,
+        overflow: 'hidden'
       }}
     >
       <CircularProgress size={28} />
@@ -36,19 +37,17 @@ export const App = () => {
   }
 
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<WorkspacesPage user={user} />} />
-        <Route
-          path="/workspaces/:workspaceId"
-          element={<ProjectsPage user={user} />}
-        />
-        <Route
-          path="/workspaces/:workspaceId/projects/:projectId"
-          element={<ProjectEditorPage user={user} />}
-        />
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
-    </BrowserRouter>
+    <Box sx={{ width: '100%', height: '100%', minWidth: 0, overflow: 'hidden' }}>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<WorkspacesPage user={user} />} />
+          <Route
+            path="/workspaces/:workspaceId/projects/:projectId"
+            element={<ProjectEditorPage user={user} />}
+          />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </BrowserRouter>
+    </Box>
   );
 };

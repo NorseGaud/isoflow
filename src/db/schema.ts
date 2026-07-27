@@ -41,18 +41,59 @@ const MIGRATIONS: string[] = [
 
     CREATE INDEX IF NOT EXISTS idx_workspaces_user_id ON workspaces(user_id);
     CREATE INDEX IF NOT EXISTS idx_projects_workspace_id ON projects(workspace_id);
+  `,
+  // Repair for DBs where migration 2 was recorded but only the first
+  // statement ran (sql.js db.run executes a single statement).
+  `
+    CREATE TABLE IF NOT EXISTS users (
+      id TEXT PRIMARY KEY NOT NULL,
+      name TEXT NOT NULL,
+      is_default INTEGER NOT NULL DEFAULT 0,
+      created_at INTEGER NOT NULL
+    );
+
+    CREATE TABLE IF NOT EXISTS workspaces (
+      id TEXT PRIMARY KEY NOT NULL,
+      user_id TEXT NOT NULL,
+      name TEXT NOT NULL,
+      is_default INTEGER NOT NULL DEFAULT 0,
+      created_at INTEGER NOT NULL,
+      FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+    );
+
+    CREATE TABLE IF NOT EXISTS projects (
+      id TEXT PRIMARY KEY NOT NULL,
+      workspace_id TEXT NOT NULL,
+      name TEXT NOT NULL,
+      is_default INTEGER NOT NULL DEFAULT 0,
+      model_json TEXT NOT NULL,
+      created_at INTEGER NOT NULL,
+      updated_at INTEGER NOT NULL,
+      FOREIGN KEY (workspace_id) REFERENCES workspaces(id) ON DELETE CASCADE
+    );
+
+    CREATE INDEX IF NOT EXISTS idx_workspaces_user_id ON workspaces(user_id);
+    CREATE INDEX IF NOT EXISTS idx_projects_workspace_id ON projects(workspace_id);
   `
 ];
 
-export const applyMigrations = (db: Database) => {
-  db.run('PRAGMA foreign_keys = ON;');
+const runSql = (db: Database, sql: string) => {
+  // sql.js db.run() only executes the first statement; exec runs all.
+  db.exec(sql);
+};
 
-  db.run(`
-    CREATE TABLE IF NOT EXISTS schema_migrations (
-      id INTEGER PRIMARY KEY,
-      applied_at INTEGER NOT NULL
-    );
-  `);
+export const applyMigrations = (db: Database) => {
+  runSql(db, 'PRAGMA foreign_keys = ON;');
+
+  runSql(
+    db,
+    `
+      CREATE TABLE IF NOT EXISTS schema_migrations (
+        id INTEGER PRIMARY KEY,
+        applied_at INTEGER NOT NULL
+      );
+    `
+  );
 
   const applied = new Set(
     (
@@ -67,17 +108,17 @@ export const applyMigrations = (db: Database) => {
 
     if (applied.has(migrationId)) return;
 
-    db.run('BEGIN');
+    runSql(db, 'BEGIN;');
 
     try {
-      db.run(sql);
+      runSql(db, sql);
       db.run('INSERT INTO schema_migrations (id, applied_at) VALUES (?, ?)', [
         migrationId,
         Date.now()
       ]);
-      db.run('COMMIT');
+      runSql(db, 'COMMIT;');
     } catch (error) {
-      db.run('ROLLBACK');
+      runSql(db, 'ROLLBACK;');
       throw error;
     }
   });

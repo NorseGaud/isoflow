@@ -1,5 +1,7 @@
 import initSqlJs, { Database, SqlJsStatic } from 'sql.js';
-import sqlWasm from 'sql.js/dist/sql-wasm.wasm';
+// Webpack resolves the browser export of sql.js (sql-wasm-browser.js),
+// so the matching browser wasm asset must be used.
+import sqlWasm from 'sql.js/dist/sql-wasm-browser.wasm';
 import { applyMigrations } from './schema';
 import { loadSqliteFile, saveSqliteFile } from './persistence';
 
@@ -12,9 +14,11 @@ const PERSIST_DEBOUNCE_MS = 250;
 
 const getSql = () => {
   if (!sqlPromise) {
+    const wasmUrl = typeof sqlWasm === 'string' ? sqlWasm : String(sqlWasm);
+
     sqlPromise = initSqlJs({
       locateFile: () => {
-        return sqlWasm;
+        return wasmUrl;
       }
     });
   }
