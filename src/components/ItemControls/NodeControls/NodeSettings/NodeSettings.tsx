@@ -3,6 +3,7 @@ import { Slider, Box, TextField } from '@mui/material';
 import { ModelItem, ViewItem } from 'src/types';
 import { MarkdownEditor } from 'src/components/MarkdownEditor/MarkdownEditor';
 import { useModelItem } from 'src/hooks/useModelItem';
+import { useIcon } from 'src/hooks/useIcon';
 import { DeleteButton } from '../../components/DeleteButton';
 import { Section } from '../../components/Section';
 
@@ -25,6 +26,7 @@ export const NodeSettings = ({
   onDeleted
 }: Props) => {
   const modelItem = useModelItem(node.id);
+  const { icon } = useIcon(modelItem.icon);
 
   return (
     <>
@@ -57,6 +59,21 @@ export const NodeSettings = ({
             onChange={(e, newHeight) => {
               const labelHeight = newHeight as number;
               onViewItemUpdated({ labelHeight });
+            }}
+          />
+        </Section>
+      )}
+      {!icon.isIsometric && (
+        <Section title="Rotation">
+          <Slider
+            marks
+            step={1}
+            min={0}
+            max={360}
+            value={node.rotation ?? 0}
+            onChange={(e, newRotation) => {
+              const rotation = newRotation as number;
+              onViewItemUpdated({ rotation });
             }}
           />
         </Section>
