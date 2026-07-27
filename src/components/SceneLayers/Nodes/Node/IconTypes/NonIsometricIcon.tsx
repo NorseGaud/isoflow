@@ -6,9 +6,10 @@ import { getIsoProjectionCss } from 'src/utils';
 
 interface Props {
   icon: Icon;
+  rotation?: number;
 }
 
-export const NonIsometricIcon = ({ icon }: Props) => {
+export const NonIsometricIcon = ({ icon, rotation = 0 }: Props) => {
   return (
     <Box sx={{ pointerEvents: 'none' }}>
       <Box
@@ -24,7 +25,11 @@ export const NonIsometricIcon = ({ icon }: Props) => {
           component="img"
           src={icon.url}
           alt={`icon-${icon.id}`}
-          sx={{ width: PROJECTED_TILE_SIZE.width * 0.7 }}
+          sx={{
+            width: PROJECTED_TILE_SIZE.width * 0.7,
+            transform: `rotate(${rotation}deg)`,
+            transformOrigin: 'center center'
+          }}
         />
       </Box>
     </Box>
