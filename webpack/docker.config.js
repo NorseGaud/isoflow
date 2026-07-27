@@ -10,6 +10,9 @@ module.exports = {
   output: {
     path: path.resolve(__dirname, '../dist'),
     filename: 'main.js',
+    // Absolute asset URLs so deep-link refreshes load /main.js, not
+    // /workspaces/.../projects/main.js
+    publicPath: '/'
   },
   module: {
     rules: [

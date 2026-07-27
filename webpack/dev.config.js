@@ -10,7 +10,10 @@ module.exports = {
   target: 'web',
   output: {
     filename: 'main.js',
-    path: path.resolve(__dirname, 'build')
+    path: path.resolve(__dirname, 'build'),
+    // Absolute asset URLs so deep-link refreshes load /main.js, not
+    // /workspaces/.../projects/main.js
+    publicPath: '/'
   },
   devServer: {
     static: {

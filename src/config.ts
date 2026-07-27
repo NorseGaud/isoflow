@@ -99,8 +99,6 @@ export const MAIN_MENU_OPTIONS: MainMenuOptions = [
   'EXPORT.JSON',
   'EXPORT.PNG',
   'ACTION.CLEAR_CANVAS',
-  'LINK.DISCORD',
-  'LINK.GITHUB',
   'VERSION'
 ];
 

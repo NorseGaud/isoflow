@@ -1,9 +1,7 @@
-import React, { useState, useCallback, useMemo } from 'react';
+import React, { useState, useCallback } from 'react';
 import { Menu, Typography, Divider, Card } from '@mui/material';
 import {
   Menu as MenuIcon,
-  GitHub as GitHubIcon,
-  QuestionAnswer as QuestionAnswerIcon,
   DataObject as ExportJsonIcon,
   ImageOutlined as ExportImageIcon,
   FolderOpen as FolderOpenIcon,
@@ -43,10 +41,6 @@ export const MainMenu = () => {
     },
     [uiStateActions]
   );
-
-  const gotoUrl = useCallback((url: string) => {
-    window.open(url, '_blank');
-  }, []);
 
   const { load } = initialDataManager;
 
@@ -94,21 +88,7 @@ export const MainMenu = () => {
     uiStateActions.setIsMainMenuOpen(false);
   }, [uiStateActions, clear]);
 
-  const sectionVisibility = useMemo(() => {
-    return {
-      actions: Boolean(
-        mainMenuOptions.find((opt) => {
-          return opt.includes('ACTION') || opt.includes('EXPORT');
-        })
-      ),
-      links: Boolean(
-        mainMenuOptions.find((opt) => {
-          return opt.includes('LINK');
-        })
-      ),
-      version: Boolean(mainMenuOptions.includes('VERSION'))
-    };
-  }, [mainMenuOptions]);
+  const showVersion = mainMenuOptions.includes('VERSION');
 
   if (mainMenuOptions.length === 0) {
     return null;
@@ -161,50 +141,19 @@ export const MainMenu = () => {
             </MenuItem>
           )}
 
-          {sectionVisibility.links && (
+          {showVersion && (
             <>
               <Divider />
-
-              {mainMenuOptions.includes('LINK.GITHUB') && (
-                <MenuItem
-                  onClick={() => {
-                    return gotoUrl(`${REPOSITORY_URL}`);
+              <MenuItem>
+                <Typography
+                  variant="body2"
+                  sx={{
+                    color: 'text.secondary'
                   }}
-                  Icon={<GitHubIcon />}
                 >
-                  GitHub
-                </MenuItem>
-              )}
-
-              {mainMenuOptions.includes('LINK.DISCORD') && (
-                <MenuItem
-                  onClick={() => {
-                    return gotoUrl('https://discord.gg/QYPkvZth7D');
-                  }}
-                  Icon={<QuestionAnswerIcon />}
-                >
-                  Discord
-                </MenuItem>
-              )}
-            </>
-          )}
-
-          {sectionVisibility.version && (
-            <>
-              <Divider />
-
-              {mainMenuOptions.includes('VERSION') && (
-                <MenuItem>
-                  <Typography
-                    variant="body2"
-                    sx={{
-                      color: 'text.secondary'
-                    }}
-                  >
-                    Isoflow v{PACKAGE_VERSION}
-                  </Typography>
-                </MenuItem>
-              )}
+                  Isoflow v{PACKAGE_VERSION}
+                </Typography>
+              </MenuItem>
             </>
           )}
         </Card>
