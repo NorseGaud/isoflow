@@ -6,6 +6,7 @@ import { useModelItem } from 'src/hooks/useModelItem';
 import { useIcon } from 'src/hooks/useIcon';
 import { DeleteButton } from '../../components/DeleteButton';
 import { Section } from '../../components/Section';
+import { ROTATION_MARKS, snapRotation } from './rotationSlider';
 
 export type NodeUpdates = {
   model: Partial<ModelItem>;
@@ -66,13 +67,13 @@ export const NodeSettings = ({
       {!icon.isIsometric && (
         <Section title="Rotation">
           <Slider
-            marks
+            marks={ROTATION_MARKS}
             step={1}
             min={0}
             max={360}
             value={node.rotation ?? 0}
             onChange={(e, newRotation) => {
-              const rotation = newRotation as number;
+              const rotation = snapRotation(newRotation as number);
               onViewItemUpdated({ rotation });
             }}
           />
