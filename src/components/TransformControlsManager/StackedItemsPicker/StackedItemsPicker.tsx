@@ -16,8 +16,9 @@ interface Props {
   selectedId: string;
   options: StackedItemOption[];
   onSelect: (id: string) => void;
+  /** Bump when the same node is re-selected so the picker can reopen. */
+  reopenToken?: number;
 }
-
 const hasOptionName = (option: StackedItemOption) => {
   return Boolean(option.name.trim());
 };
@@ -26,7 +27,8 @@ export const StackedItemsPicker = ({
   tile,
   selectedId,
   options,
-  onSelect
+  onSelect,
+  reopenToken
 }: Props) => {
   const anchorRef = useRef<HTMLDivElement | null>(null);
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
@@ -43,7 +45,7 @@ export const StackedItemsPicker = ({
   useEffect(() => {
     setAnchorEl(anchorRef.current);
     setIsOpen(true);
-  }, [tile, options.length]);
+  }, [tile, options.length, reopenToken]);
 
   if (options.length < 2) {
     return null;

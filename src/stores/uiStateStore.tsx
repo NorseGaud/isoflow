@@ -29,6 +29,7 @@ const initialState = () => {
         delta: null
       },
       itemControls: null,
+      stackedPickerReopenToken: 0,
       enableDebugTools: false,
       actions: {
         setView: (view) => {
@@ -78,6 +79,14 @@ const initialState = () => {
           set({ scroll: { position, offset: offset ?? get().scroll.offset } });
         },
         setItemControls: (itemControls) => {
+          if (itemControls?.type === 'ITEM') {
+            set({
+              itemControls,
+              stackedPickerReopenToken: get().stackedPickerReopenToken + 1
+            });
+            return;
+          }
+
           set({ itemControls });
         },
         setContextMenu: (contextMenu) => {

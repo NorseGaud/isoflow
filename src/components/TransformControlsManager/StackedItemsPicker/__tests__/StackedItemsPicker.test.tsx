@@ -58,6 +58,37 @@ describe('StackedItemsPicker', () => {
     expect(container.firstChild).toBeNull();
   });
 
+  test('reopens after dismiss when reopenToken changes', async () => {
+    const user = userEvent.setup();
+    const { rerender } = render(
+      <StackedItemsPicker
+        tile={{ x: 0, y: 0 }}
+        selectedId="n1"
+        options={options}
+        onSelect={jest.fn()}
+        reopenToken={1}
+      />
+    );
+
+    expect(screen.getByRole('listbox', { name: /stacked icons/i })).toBeTruthy();
+
+    await user.keyboard('{Escape}');
+
+    expect(screen.queryByRole('listbox', { name: /stacked icons/i })).toBeNull();
+
+    rerender(
+      <StackedItemsPicker
+        tile={{ x: 0, y: 0 }}
+        selectedId="n1"
+        options={options}
+        onSelect={jest.fn()}
+        reopenToken={2}
+      />
+    );
+
+    expect(screen.getByRole('listbox', { name: /stacked icons/i })).toBeTruthy();
+  });
+
   test('lays out nameless icons beside named options', async () => {
     const user = userEvent.setup();
     const onSelect = jest.fn();

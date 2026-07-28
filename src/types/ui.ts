@@ -140,6 +140,8 @@ export interface UiState {
   dialog: keyof typeof DialogTypeEnum | null;
   isMainMenuOpen: boolean;
   itemControls: ItemControls | null;
+  /** Incremented on each ITEM selection so the stacked picker can reopen. */
+  stackedPickerReopenToken: number;
   contextMenu: ContextMenu | null;
   zoom: number;
   scroll: Scroll;

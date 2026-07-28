@@ -37,6 +37,7 @@ jest.mock('src/stores/uiStateStore', () => {
   return {
     useUiStateStore: (selector: (state: unknown) => unknown) => {
       return selector({
+        stackedPickerReopenToken: 0,
         actions: { setItemControls: mockSetItemControls }
       });
     }

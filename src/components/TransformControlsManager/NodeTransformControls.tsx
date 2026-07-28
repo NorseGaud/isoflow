@@ -24,6 +24,9 @@ export const NodeTransformControls = ({ id }: Props) => {
   const setItemControls = useUiStateStore((state) => {
     return state.actions.setItemControls;
   });
+  const stackedPickerReopenToken = useUiStateStore((state) => {
+    return state.stackedPickerReopenToken;
+  });
 
   const options = useMemo(() => {
     const itemRefs = getItemsAtTile({ tile: node.tile, scene });
@@ -42,6 +45,7 @@ export const NodeTransformControls = ({ id }: Props) => {
         tile={node.tile}
         selectedId={id}
         options={options}
+        reopenToken={stackedPickerReopenToken}
         onSelect={(nextId) => {
           setItemControls({ type: 'ITEM', id: nextId });
         }}
