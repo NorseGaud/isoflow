@@ -6,7 +6,8 @@ import {
   AddOutlined as AddIcon,
   EastOutlined as ConnectorIcon,
   CropSquareOutlined as CropSquareIcon,
-  Title as TitleIcon
+  Title as TitleIcon,
+  CategoryOutlined as GroupIcon
 } from '@mui/icons-material';
 import { useUiStateStore } from 'src/stores/uiStateStore';
 import { IconButton } from 'src/components/IconButton/IconButton';
@@ -100,6 +101,14 @@ export const ToolMenu = () => {
     });
   }, [uiStateStoreActions, createTextBox, mousePosition]);
 
+  const selectGroupTool = useCallback(() => {
+    uiStateStoreActions.setMode({
+      type: 'GROUP.DRAW',
+      showCursor: true,
+      region: null
+    });
+  }, [uiStateStoreActions]);
+
   useEffect(() => {
     const toolShortcuts: Record<string, () => void> = {
       Digit1: selectSelectTool,
@@ -107,7 +116,8 @@ export const ToolMenu = () => {
       Digit3: selectAddItemTool,
       Digit4: selectRectangleTool,
       Digit5: selectConnectorTool,
-      Digit6: selectTextTool
+      Digit6: selectTextTool,
+      Digit7: selectGroupTool
     };
 
     const onKeyDown = (e: KeyboardEvent) => {
@@ -133,7 +143,8 @@ export const ToolMenu = () => {
     selectAddItemTool,
     selectRectangleTool,
     selectConnectorTool,
-    selectTextTool
+    selectTextTool,
+    selectGroupTool
   ]);
 
   return (
@@ -147,7 +158,7 @@ export const ToolMenu = () => {
           whiteSpace: 'nowrap'
         }}
       >
-        ⌥1–6 to switch tools
+        ⌥1–7 to switch tools
       </Typography>
       <UiElement>
         <Stack direction="row">
@@ -186,6 +197,12 @@ export const ToolMenu = () => {
             Icon={<TitleIcon />}
             onClick={selectTextTool}
             isActive={mode.type === 'TEXTBOX'}
+          />
+          <IconButton
+            name="Group (⌥7)"
+            Icon={<GroupIcon />}
+            onClick={selectGroupTool}
+            isActive={mode.type === 'GROUP.DRAW'}
           />
         </Stack>
       </UiElement>

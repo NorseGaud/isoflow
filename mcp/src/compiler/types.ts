@@ -11,6 +11,7 @@ export type DiagramEdgeSpec = {
   to: string;
   style?: 'SOLID' | 'DOTTED' | 'DASHED';
   label?: string;
+  labelEmphasis?: 'SUBTLE' | 'CHIP' | 'CAPS';
 };
 
 export type DiagramGroupSpec = {

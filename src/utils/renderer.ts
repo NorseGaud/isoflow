@@ -39,6 +39,7 @@ import {
   getItemByIdOrThrow
 } from 'src/utils';
 import { useScene } from 'src/hooks/useScene';
+import { getGroupBounds } from './groupGeometry';
 
 interface ScreenToIso {
   mouse: Coords;
@@ -513,6 +514,19 @@ export const getItemAtTile = ({
     };
   }
 
+  const group = scene.groups.find((entry) => {
+    const bounds = getGroupBounds(scene.currentView, entry);
+    if (!bounds) return false;
+    return isWithinBounds(tile, [bounds.from, bounds.to]);
+  });
+
+  if (group) {
+    return {
+      type: 'GROUP',
+      id: group.id
+    };
+  }
+
   return null;
 };
 
@@ -699,6 +713,13 @@ export const getProjectBounds = (
     return [...acc, rectangle.from, rectangle.to];
   }, []);
 
+  const groups = view.groups ?? [];
+  const groupTiles = groups.reduce<Coords[]>((acc, group) => {
+    const bounds = getGroupBounds(view, group);
+    if (!bounds) return acc;
+    return [...acc, bounds.from, bounds.to];
+  }, []);
+
   const textBoxes = view.textBoxes ?? [];
   const textBoxTiles = textBoxes.reduce<Coords[]>((acc, textBox) => {
     const size = getTextBoxDimensions(textBox);
@@ -717,6 +738,7 @@ export const getProjectBounds = (
     ...itemTiles,
     ...connectorTiles,
     ...rectangleTiles,
+    ...groupTiles,
     ...textBoxTiles
   ];
 

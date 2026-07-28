@@ -9,6 +9,7 @@ import * as viewItemReducers from './viewItem';
 import * as connectorReducers from './connector';
 import * as textBoxReducers from './textBox';
 import * as rectangleReducers from './rectangle';
+import * as groupReducers from './group';
 import * as layerOrderingReducers from './layerOrdering';
 
 export const updateViewTimestamp = (ctx: ViewReducerContext): State => {
@@ -137,6 +138,15 @@ export const view = ({ action, payload, ctx }: ViewReducerParams) => {
       break;
     case 'DELETE_RECTANGLE':
       newState = rectangleReducers.deleteRectangle(payload, ctx);
+      break;
+    case 'CREATE_GROUP':
+      newState = groupReducers.createGroup(payload, ctx);
+      break;
+    case 'UPDATE_GROUP':
+      newState = groupReducers.updateGroup(payload, ctx);
+      break;
+    case 'DELETE_GROUP':
+      newState = groupReducers.deleteGroup(payload, ctx);
       break;
     case 'CHANGE_LAYER_ORDER':
       newState = layerOrderingReducers.changeLayerOrder(payload, ctx);

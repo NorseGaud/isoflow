@@ -24,6 +24,7 @@ import { searchIcons } from './icons/match';
 import { exportModelJson, importModelJson } from './importExport';
 import { clearCanvas } from './ops/clearCanvas';
 import { deleteEntities } from './ops/deleteEntities';
+import { addGroups, updateGroups } from './ops/groups';
 import { addRectangles, updateRectangles } from './ops/rectangles';
 import { saveModelWithRetry } from './ops/saveModel';
 import { addTextBoxes, updateTextBoxes } from './ops/textBoxes';
@@ -55,7 +56,8 @@ const edgeSchema = z.object({
   from: z.string(),
   to: z.string(),
   style: z.enum(['SOLID', 'DOTTED', 'DASHED']).optional(),
-  label: z.string().optional()
+  label: z.string().optional(),
+  labelEmphasis: z.enum(['SUBTLE', 'CHIP', 'CAPS']).optional()
 });
 
 const groupSchema = z.object({
@@ -345,7 +347,8 @@ const createServer = () => {
               from,
               to,
               style: connector.style,
-              label: connector.description
+              label: connector.description,
+              labelEmphasis: connector.labelEmphasis
             }
           ];
         }) ?? [];
@@ -432,6 +435,7 @@ const createServer = () => {
             id: `conn-extra-${Date.now()}-${index}`,
             description: edge.label,
             style: edge.style,
+            labelEmphasis: edge.labelEmphasis,
             color: current.colors[0]?.id,
             anchors: [
               { id: `ae-${index}-a`, ref: { item: edge.from } },
@@ -456,7 +460,8 @@ const createServer = () => {
   server.registerTool(
     'isoflow_update_connectors',
     {
-      description: 'Update connector style, color, width, or label.',
+      description:
+        'Update connector style, color, width, label, or labelEmphasis.',
       inputSchema: {
         projectName: z.string(),
         workspaceName: z.string().optional(),
@@ -467,7 +472,8 @@ const createServer = () => {
               style: z.enum(['SOLID', 'DOTTED', 'DASHED']).optional(),
               color: z.string().optional(),
               width: z.number().optional(),
-              label: z.string().optional()
+              label: z.string().optional(),
+              labelEmphasis: z.enum(['SUBTLE', 'CHIP', 'CAPS']).optional()
             })
           )
           .min(1)
@@ -593,6 +599,70 @@ const createServer = () => {
   );
 
   server.registerTool(
+    'isoflow_add_groups',
+    {
+      description:
+        'Add named groups of nodes. Connectors between members are inferred automatically.',
+      inputSchema: {
+        projectName: z.string(),
+        workspaceName: z.string().optional(),
+        groups: z
+          .array(
+            z.object({
+              key: z.string().optional(),
+              name: z.string(),
+              color: z.string().optional(),
+              memberKeys: z.array(z.string()).min(1)
+            })
+          )
+          .min(1)
+      }
+    },
+    async ({ projectName, workspaceName, groups }) => {
+      const project = await resolveProjectByName(projectName, workspaceName);
+      const saved = await saveModelWithRetry(project.id, (model) => {
+        return addGroups(model, groups);
+      });
+      return textResult(
+        `Added groups. Revision ${saved.revision}\n\n${describeModel(saved.model)}`
+      );
+    }
+  );
+
+  server.registerTool(
+    'isoflow_update_groups',
+    {
+      description:
+        'Update groups by key (name, color, addMembers/removeMembers/setMembers).',
+      inputSchema: {
+        projectName: z.string(),
+        workspaceName: z.string().optional(),
+        updates: z
+          .array(
+            z.object({
+              key: z.string(),
+              name: z.string().optional(),
+              color: z.string().optional(),
+              addMembers: z.array(z.string()).optional(),
+              removeMembers: z.array(z.string()).optional(),
+              setMembers: z.array(z.string()).optional()
+            })
+          )
+          .min(1)
+      }
+    },
+    async ({ projectName, workspaceName, updates }) => {
+      const project = await resolveProjectByName(projectName, workspaceName);
+      const saved = await saveModelWithRetry(project.id, (model) => {
+        return updateGroups(model, updates);
+      });
+      return textResult(
+        `Updated groups. Revision ${saved.revision}\n\n${describeModel(saved.model)}`
+      );
+    }
+  );
+
+  server.registerTool(
     'isoflow_add_text_boxes',
     {
       description: 'Add text boxes to a diagram.',
@@ -660,13 +730,14 @@ const createServer = () => {
     'isoflow_delete',
     {
       description:
-        'Delete nodes (and their connectors), connectors, rectangles, and/or text boxes by key/id.',
+        'Delete nodes (and their connectors), connectors, rectangles, groups, and/or text boxes by key/id.',
       inputSchema: {
         projectName: z.string(),
         workspaceName: z.string().optional(),
         nodeKeys: z.array(z.string()).optional(),
         connectorIds: z.array(z.string()).optional(),
         rectangleKeys: z.array(z.string()).optional(),
+        groupKeys: z.array(z.string()).optional(),
         textBoxKeys: z.array(z.string()).optional()
       }
     },
@@ -676,6 +747,7 @@ const createServer = () => {
       nodeKeys,
       connectorIds,
       rectangleKeys,
+      groupKeys,
       textBoxKeys
     }) => {
       const project = await resolveProjectByName(projectName, workspaceName);
@@ -684,6 +756,7 @@ const createServer = () => {
           nodeKeys,
           connectorIds,
           rectangleKeys,
+          groupKeys,
           textBoxKeys
         });
       });
@@ -697,7 +770,7 @@ const createServer = () => {
     'isoflow_clear_canvas',
     {
       description:
-        'Clear all nodes, connectors, rectangles, and text boxes. Requires confirm: true.',
+        'Clear all nodes, connectors, rectangles, groups, and text boxes. Requires confirm: true.',
       inputSchema: {
         projectName: z.string(),
         workspaceName: z.string().optional(),

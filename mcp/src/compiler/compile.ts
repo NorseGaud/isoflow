@@ -114,22 +114,23 @@ export const compileDiagramSpec = (
     };
   });
 
-  const rectangles =
-    layout.groups.length === 0
-      ? undefined
-      : layout.groups
+  const compiledGroups =
+    spec.groups !== undefined
+      ? groups
           .filter((group) => {
             return nodes.some((node) => node.group === group.key);
           })
           .map((group) => {
-            const groupSpec = groups.find((entry) => entry.key === group.key);
             return {
-              id: `rect-${group.key}`,
-              color: resolveColorId(groupSpec?.color, colors),
-              from: group.from,
-              to: group.to
+              id: group.key,
+              name: (group.label ?? group.key).slice(0, 100),
+              color: resolveColorId(group.color, colors),
+              memberIds: nodes
+                .filter((node) => node.group === group.key)
+                .map((node) => node.key)
             };
-          });
+          })
+      : existingView?.groups;
 
   const connectors = edges.map((edge, edgeIndex) => {
     return {
@@ -137,6 +138,7 @@ export const compileDiagramSpec = (
       description: edge.label?.slice(0, 1000),
       color: colors[0]?.id,
       style: edge.style,
+      labelEmphasis: edge.labelEmphasis,
       anchors: [
         { id: `a-${edgeIndex}-from`, ref: { item: edge.from } },
         { id: `a-${edgeIndex}-to`, ref: { item: edge.to } }
@@ -148,10 +150,12 @@ export const compileDiagramSpec = (
     id: existingView?.id ?? 'view-main',
     name: existingView?.name ?? 'Overview',
     items: viewItems,
-    rectangles,
+    // Groups replace former group-derived rectangles; preserve manual rectangles
+    // only when the compile call did not supply a groups list (e.g. add_nodes).
+    rectangles:
+      spec.groups !== undefined ? undefined : existingView?.rectangles,
+    groups: compiledGroups,
     connectors,
-    // Intentionally no group title textBoxes — isometric text overlaps icons.
-    // Region meaning comes from node names + rectangle color only.
     textBoxes: []
   };
 

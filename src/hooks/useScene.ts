@@ -5,6 +5,7 @@ import {
   Connector,
   TextBox,
   Rectangle,
+  Group,
   ItemReference,
   LayerOrderingAction
 } from 'src/types';
@@ -17,6 +18,7 @@ import { getItemByIdOrThrow } from 'src/utils';
 import {
   CONNECTOR_DEFAULTS,
   RECTANGLE_DEFAULTS,
+  GROUP_DEFAULTS,
   TEXTBOX_DEFAULTS
 } from 'src/config';
 
@@ -65,6 +67,15 @@ export const useScene = () => {
       };
     });
   }, [currentView.rectangles]);
+
+  const groups = useMemo(() => {
+    return (currentView.groups ?? []).map((group) => {
+      return {
+        ...GROUP_DEFAULTS,
+        ...group
+      };
+    });
+  }, [currentView.groups]);
 
   const textBoxes = useMemo(() => {
     return (currentView.textBoxes ?? []).map((textBox) => {
@@ -261,6 +272,42 @@ export const useScene = () => {
     [getState, setState, currentViewId]
   );
 
+  const createGroup = useCallback(
+    (newGroup: Group) => {
+      const newState = reducers.view({
+        action: 'CREATE_GROUP',
+        payload: newGroup,
+        ctx: { viewId: currentViewId, state: getState() }
+      });
+      setState(newState);
+    },
+    [getState, setState, currentViewId]
+  );
+
+  const updateGroup = useCallback(
+    (id: string, updates: Partial<Group>) => {
+      const newState = reducers.view({
+        action: 'UPDATE_GROUP',
+        payload: { id, ...updates },
+        ctx: { viewId: currentViewId, state: getState() }
+      });
+      setState(newState);
+    },
+    [getState, setState, currentViewId]
+  );
+
+  const deleteGroup = useCallback(
+    (id: string) => {
+      const newState = reducers.view({
+        action: 'DELETE_GROUP',
+        payload: id,
+        ctx: { viewId: currentViewId, state: getState() }
+      });
+      setState(newState);
+    },
+    [getState, setState, currentViewId]
+  );
+
   const changeLayerOrder = useCallback(
     (action: LayerOrderingAction, item: ItemReference) => {
       const newState = reducers.view({
@@ -278,6 +325,7 @@ export const useScene = () => {
     connectors,
     colors,
     rectangles,
+    groups,
     textBoxes,
     currentView,
     createModelItem,
@@ -295,6 +343,9 @@ export const useScene = () => {
     createRectangle,
     updateRectangle,
     deleteRectangle,
+    createGroup,
+    updateGroup,
+    deleteGroup,
     changeLayerOrder
   };
 };

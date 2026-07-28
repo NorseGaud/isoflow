@@ -5,6 +5,7 @@ export type DeleteEntitiesInput = {
   connectorIds?: string[];
   rectangleKeys?: string[];
   textBoxKeys?: string[];
+  groupKeys?: string[];
 };
 
 export const deleteEntities = (
@@ -20,6 +21,7 @@ export const deleteEntities = (
   const connectorIdSet = new Set(input.connectorIds ?? []);
   const rectangleKeySet = new Set(input.rectangleKeys ?? []);
   const textBoxKeySet = new Set(input.textBoxKeys ?? []);
+  const groupKeySet = new Set(input.groupKeys ?? []);
 
   return {
     ...model,
@@ -39,7 +41,17 @@ export const deleteEntities = (
         }),
         textBoxes: (view.textBoxes ?? []).filter((textBox) => {
           return !textBoxKeySet.has(textBox.id);
-        })
+        }),
+        groups: (view.groups ?? [])
+          .filter((group) => !groupKeySet.has(group.id))
+          .map((group) => {
+            return {
+              ...group,
+              memberIds: group.memberIds.filter(
+                (memberId) => !nodeKeySet.has(memberId)
+              )
+            };
+          })
       }
     ]
   };

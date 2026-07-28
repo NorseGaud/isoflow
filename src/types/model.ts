@@ -13,11 +13,15 @@ import {
   anchorSchema,
   textBoxSchema,
   rectangleSchema,
+  groupSchema,
   connectorStyleOptions
 } from 'src/schemas';
 import { StoreApi } from 'zustand';
 
-export { connectorStyleOptions } from 'src/schemas';
+export {
+  connectorStyleOptions,
+  connectorLabelEmphasisOptions
+} from 'src/schemas';
 export type Model = z.infer<typeof modelSchema>;
 export type ModelItems = z.infer<typeof modelItemsSchema>;
 export type Icon = z.infer<typeof iconSchema>;
@@ -32,6 +36,7 @@ export type ConnectorAnchor = z.infer<typeof anchorSchema>;
 export type Connector = z.infer<typeof connectorSchema>;
 export type TextBox = z.infer<typeof textBoxSchema>;
 export type Rectangle = z.infer<typeof rectangleSchema>;
+export type Group = z.infer<typeof groupSchema>;
 
 export type ModelStore = Model & {
   actions: {

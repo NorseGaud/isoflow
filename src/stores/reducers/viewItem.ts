@@ -75,6 +75,16 @@ export const deleteViewItem = (
 
     draft.model.views[view.index].items.splice(viewItem.index, 1);
 
+    const groups = draft.model.views[view.index].groups;
+    if (groups) {
+      draft.model.views[view.index].groups = groups.map((group) => {
+        return {
+          ...group,
+          memberIds: group.memberIds.filter((memberId) => memberId !== id)
+        };
+      });
+    }
+
     const connectorsToUpdate = getConnectorsByViewItem(
       viewItem.value.id,
       view.value.connectors ?? []

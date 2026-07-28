@@ -4,7 +4,8 @@ import type {
   Connector,
   ConnectorAnchor,
   View,
-  Rectangle
+  Rectangle,
+  Group
 } from 'src/types';
 import { getAllAnchors, getItemByIdOrThrow } from 'src/utils';
 
@@ -32,6 +33,22 @@ type IssueType =
         rectangle: string;
         view: string;
         color: string;
+      };
+    }
+  | {
+      type: 'INVALID_GROUP_COLOR_REF';
+      params: {
+        group: string;
+        view: string;
+        color: string;
+      };
+    }
+  | {
+      type: 'INVALID_GROUP_MEMBER_REF';
+      params: {
+        group: string;
+        view: string;
+        member: string;
       };
     }
   | {
@@ -223,6 +240,48 @@ export const validateRectangle = (
   return issues;
 };
 
+export const validateGroup = (
+  group: Group,
+  ctx: { view: View; model: Model }
+): Issue[] => {
+  const issues: Issue[] = [];
+
+  if (group.color) {
+    try {
+      getItemByIdOrThrow(ctx.model.colors, group.color);
+    } catch (e) {
+      issues.push({
+        type: 'INVALID_GROUP_COLOR_REF',
+        params: {
+          group: group.id,
+          view: ctx.view.id,
+          color: group.color
+        },
+        message: 'Group references a color that does not exist in the model.'
+      });
+    }
+  }
+
+  group.memberIds.forEach((memberId) => {
+    try {
+      getItemByIdOrThrow(ctx.view.items, memberId);
+    } catch (e) {
+      issues.push({
+        type: 'INVALID_GROUP_MEMBER_REF',
+        params: {
+          group: group.id,
+          view: ctx.view.id,
+          member: memberId
+        },
+        message:
+          'Group references a member that does not exist in this view.'
+      });
+    }
+  });
+
+  return issues;
+};
+
 export const validateView = (view: View, ctx: { model: Model }): Issue[] => {
   const issues: Issue[] = [];
 
@@ -244,6 +303,17 @@ export const validateView = (view: View, ctx: { model: Model }): Issue[] => {
     view.rectangles.forEach((rectangle) => {
       issues.push(
         ...validateRectangle(rectangle, {
+          view,
+          model: ctx.model
+        })
+      );
+    });
+  }
+
+  if (view.groups) {
+    view.groups.forEach((group) => {
+      issues.push(
+        ...validateGroup(group, {
           view,
           model: ctx.model
         })

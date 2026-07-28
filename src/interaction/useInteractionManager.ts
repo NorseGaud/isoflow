@@ -9,6 +9,7 @@ import { Cursor } from './modes/Cursor';
 import { DragItems } from './modes/DragItems';
 import { DrawRectangle } from './modes/Rectangle/DrawRectangle';
 import { TransformRectangle } from './modes/Rectangle/TransformRectangle';
+import { DrawGroup } from './modes/DrawGroup';
 import { Connector } from './modes/Connector';
 import { Pan } from './modes/Pan';
 import { PlaceIcon } from './modes/PlaceIcon';
@@ -20,6 +21,7 @@ const modes: { [k in string]: ModeActions } = {
   // TODO: Adopt this notation for all modes (i.e. {node.type}.{action})
   'RECTANGLE.DRAW': DrawRectangle,
   'RECTANGLE.TRANSFORM': TransformRectangle,
+  'GROUP.DRAW': DrawGroup,
   CONNECTOR: Connector,
   PAN: Pan,
   PLACE_ICON: PlaceIcon,

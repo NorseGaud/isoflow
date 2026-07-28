@@ -16,7 +16,8 @@ export const ItemReferenceTypeOptions = {
   CONNECTOR: 'CONNECTOR',
   CONNECTOR_ANCHOR: 'CONNECTOR_ANCHOR',
   TEXTBOX: 'TEXTBOX',
-  RECTANGLE: 'RECTANGLE'
+  RECTANGLE: 'RECTANGLE',
+  GROUP: 'GROUP'
 } as const;
 
 export type ItemReferenceType = keyof typeof ItemReferenceTypeOptions;

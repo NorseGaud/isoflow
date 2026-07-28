@@ -8,6 +8,7 @@ import {
   ViewItem,
   View,
   Rectangle,
+  Group,
   Colors
 } from 'src/types';
 import { CoordsUtils } from 'src/utils/CoordsUtils';
@@ -40,6 +41,7 @@ export const VIEW_DEFAULTS: Required<
   items: [],
   connectors: [],
   rectangles: [],
+  groups: [],
   textBoxes: []
 };
 
@@ -53,7 +55,8 @@ export const CONNECTOR_DEFAULTS: Required<Omit<Connector, 'id' | 'color'>> = {
   width: 10,
   description: '',
   anchors: [],
-  style: 'SOLID'
+  style: 'SOLID',
+  labelEmphasis: 'SUBTLE'
 };
 
 // The boundaries of the search area for the pathfinder algorithm
@@ -72,6 +75,12 @@ export const TEXTBOX_FONT_WEIGHT = 'bold';
 export const RECTANGLE_DEFAULTS: Required<
   Omit<Rectangle, 'id' | 'from' | 'to' | 'color'>
 > = {};
+
+export const GROUP_DEFAULTS: Required<
+  Omit<Group, 'id' | 'name' | 'color' | 'memberIds'>
+> = {};
+
+export const GROUP_TILE_PADDING = 1;
 
 export const ZOOM_INCREMENT = 0.2;
 export const MIN_ZOOM = 0.2;

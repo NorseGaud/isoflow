@@ -10,7 +10,14 @@ describe('layout', () => {
     const a = rankPositionToTile(0, 0, 1);
     const b = rankPositionToTile(1, 0, 1);
     expect(a).toEqual({ x: 0, y: 0 });
-    expect(b).toEqual({ x: 3, y: 3 });
+    // Horizontal flow: rank advances x and retreats y (constant x+y).
+    expect(b).toEqual({ x: 3, y: -3 });
+  });
+
+  it('keeps a single-lane chain on a constant isometric level (x+y)', () => {
+    const tiles = [0, 1, 2, 3].map((rank) => rankPositionToTile(rank, 0, 1));
+    const levels = tiles.map((tile) => tile.x + tile.y);
+    expect(new Set(levels).size).toBe(1);
   });
 
   it('breaks cycles by removing back-edges', () => {

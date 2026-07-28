@@ -6,6 +6,7 @@ export type ConnectorUpdate = {
   color?: string;
   width?: number;
   label?: string;
+  labelEmphasis?: 'SUBTLE' | 'CHIP' | 'CAPS';
 };
 
 const resolveColorId = (
@@ -54,6 +55,10 @@ export const applyConnectorUpdates = (
       width: update.width !== undefined ? update.width : connector.width,
       description:
         update.label !== undefined ? update.label : connector.description,
+      labelEmphasis:
+        update.labelEmphasis !== undefined
+          ? update.labelEmphasis
+          : connector.labelEmphasis,
       color:
         update.color !== undefined
           ? resolveColorId(update.color, model.colors) ?? connector.color

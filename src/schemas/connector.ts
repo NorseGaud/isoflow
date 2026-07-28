@@ -3,6 +3,12 @@ import { coords, id, constrainedStrings } from './common';
 
 export const connectorStyleOptions = ['SOLID', 'DOTTED', 'DASHED'] as const;
 
+export const connectorLabelEmphasisOptions = [
+  'SUBTLE',
+  'CHIP',
+  'CAPS'
+] as const;
+
 export const anchorSchema = z.object({
   id,
   ref: z
@@ -20,5 +26,6 @@ export const connectorSchema = z.object({
   color: id.optional(),
   width: z.number().optional(),
   style: z.enum(connectorStyleOptions).optional(),
+  labelEmphasis: z.enum(connectorLabelEmphasisOptions).optional(),
   anchors: z.array(anchorSchema)
 });

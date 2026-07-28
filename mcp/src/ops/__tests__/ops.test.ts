@@ -1,9 +1,11 @@
 import { addRectangles, updateRectangles } from '../rectangles';
+import { addGroups, updateGroups } from '../groups';
 import { addTextBoxes, updateTextBoxes } from '../textBoxes';
 import { applyNodeUpdates } from '../updateNodes';
 import { applyConnectorUpdates } from '../updateConnectors';
 import { clearCanvas } from '../clearCanvas';
 import { deleteEntities } from '../deleteEntities';
+import { describeModel } from '../../describe';
 import type { Model } from '../../../../src/types';
 
 const baseModel = (): Model => {
@@ -43,6 +45,14 @@ const baseModel = (): Model => {
             color: 'color1'
           }
         ],
+        groups: [
+          {
+            id: 'g1',
+            name: 'Path',
+            color: 'color1',
+            memberIds: ['a', 'b']
+          }
+        ],
         textBoxes: [
           {
             id: 't1',
@@ -74,6 +84,22 @@ describe('mcp ops', () => {
     expect(next.views[0].connectors?.[0].description).toBe('link');
   });
 
+  it('updates connector labelEmphasis', () => {
+    const next = applyConnectorUpdates(baseModel(), [
+      { id: 'c1', labelEmphasis: 'CHIP' }
+    ]);
+    expect(next.views[0].connectors?.[0].labelEmphasis).toBe('CHIP');
+  });
+
+  it('describe emits non-subtle labelEmphasis only', () => {
+    expect(describeModel(baseModel())).not.toMatch(/emphasis=/);
+
+    const next = applyConnectorUpdates(baseModel(), [
+      { id: 'c1', labelEmphasis: 'CHIP' }
+    ]);
+    expect(describeModel(next)).toMatch(/emphasis=CHIP/);
+  });
+
   it('adds and updates rectangles', () => {
     let next = addRectangles(baseModel(), [
       { key: 'r2', from: { x: 1, y: 1 }, to: { x: 3, y: 3 } }
@@ -99,26 +125,69 @@ describe('mcp ops', () => {
     expect(box?.tile).toEqual({ x: 5, y: 4 });
   });
 
+  it('adds and updates groups including membership patches', () => {
+    let next = addGroups(baseModel(), [
+      { key: 'g2', name: 'Other', memberKeys: ['a'] }
+    ]);
+    expect(next.views[0].groups).toHaveLength(2);
+
+    next = updateGroups(next, [
+      { key: 'g2', name: 'Renamed', addMembers: ['b'] }
+    ]);
+    expect(next.views[0].groups?.find((g) => g.id === 'g2')).toMatchObject({
+      name: 'Renamed',
+      memberIds: ['a', 'b']
+    });
+
+    next = updateGroups(next, [{ key: 'g2', removeMembers: ['a'] }]);
+    expect(next.views[0].groups?.find((g) => g.id === 'g2')?.memberIds).toEqual([
+      'b'
+    ]);
+
+    next = updateGroups(next, [{ key: 'g2', setMembers: ['a'] }]);
+    expect(next.views[0].groups?.find((g) => g.id === 'g2')?.memberIds).toEqual([
+      'a'
+    ]);
+  });
+
+  it('describe emits Groups section with inferred connectors', () => {
+    const text = describeModel(baseModel());
+    expect(text).toMatch(/1 groups/);
+    expect(text).toMatch(/Groups:/);
+    expect(text).toMatch(/members=\[a, b\]/);
+    expect(text).toMatch(/connectors=\[c1\]/);
+  });
+
   it('clears canvas content', () => {
     const next = clearCanvas(baseModel());
     expect(next.items).toHaveLength(0);
     expect(next.views[0].items).toHaveLength(0);
     expect(next.views[0].connectors).toHaveLength(0);
     expect(next.views[0].rectangles).toHaveLength(0);
+    expect(next.views[0].groups).toHaveLength(0);
     expect(next.views[0].textBoxes).toHaveLength(0);
     expect(next.title).toBe('Demo');
   });
 
-  it('deletes nodes, connectors, rectangles, and text boxes', () => {
+  it('deletes nodes, connectors, rectangles, groups, and text boxes', () => {
     const next = deleteEntities(baseModel(), {
       nodeKeys: ['a'],
       connectorIds: [],
       rectangleKeys: ['r1'],
+      groupKeys: ['g1'],
       textBoxKeys: ['t1']
     });
     expect(next.items.map((item) => item.id)).toEqual(['b']);
     expect(next.views[0].connectors).toHaveLength(0);
     expect(next.views[0].rectangles).toHaveLength(0);
+    expect(next.views[0].groups).toHaveLength(0);
     expect(next.views[0].textBoxes).toHaveLength(0);
+  });
+
+  it('prunes deleted nodes from group membership', () => {
+    const next = deleteEntities(baseModel(), {
+      nodeKeys: ['a']
+    });
+    expect(next.views[0].groups?.[0].memberIds).toEqual(['b']);
   });
 });

@@ -1,4 +1,5 @@
 import type { Model } from '../../src/types';
+import { getGroupConnectorIds } from '../../src/utils/groupGeometry';
 
 /** Compact text description — never includes icon URLs. */
 export const describeModel = (model: Model): string => {
@@ -7,7 +8,7 @@ export const describeModel = (model: Model): string => {
 
   lines.push(`Title: ${model.title}`);
   lines.push(
-    `Counts: ${model.items.length} nodes, ${view?.connectors?.length ?? 0} connectors, ${view?.rectangles?.length ?? 0} regions, ${view?.textBoxes?.length ?? 0} text boxes`
+    `Counts: ${model.items.length} nodes, ${view?.connectors?.length ?? 0} connectors, ${view?.rectangles?.length ?? 0} regions, ${view?.groups?.length ?? 0} groups, ${view?.textBoxes?.length ?? 0} text boxes`
   );
 
   if (!view) {
@@ -49,7 +50,10 @@ export const describeModel = (model: Model): string => {
       const bits = [
         connector.style,
         connector.width !== undefined ? `w=${connector.width}` : undefined,
-        connector.description ? `"${connector.description}"` : undefined
+        connector.description ? `"${connector.description}"` : undefined,
+        connector.labelEmphasis && connector.labelEmphasis !== 'SUBTLE'
+          ? `emphasis=${connector.labelEmphasis}`
+          : undefined
       ].filter(Boolean);
       lines.push(
         `- ${connector.id}: ${ends}${bits.length ? ` [${bits.join(' ')}]` : ''}`
@@ -63,6 +67,17 @@ export const describeModel = (model: Model): string => {
     view.rectangles.forEach((rectangle) => {
       lines.push(
         `- ${rectangle.id}: (${rectangle.from.x},${rectangle.from.y}) -> (${rectangle.to.x},${rectangle.to.y})${rectangle.color ? ` color=${rectangle.color}` : ''}`
+      );
+    });
+  }
+
+  if (view.groups && view.groups.length > 0) {
+    lines.push('');
+    lines.push('Groups:');
+    view.groups.forEach((group) => {
+      const connectorIds = getGroupConnectorIds(view, group);
+      lines.push(
+        `- ${group.id}: "${group.name}" members=[${group.memberIds.join(', ')}] connectors=[${connectorIds.join(', ')}]${group.color ? ` color=${group.color}` : ''}`
       );
     });
   }

@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { id, constrainedStrings, coords } from './common';
 import { rectangleSchema } from './rectangle';
+import { groupSchema } from './group';
 import { connectorSchema } from './connector';
 import { textBoxSchema } from './textBox';
 
@@ -19,6 +20,7 @@ export const viewSchema = z.object({
   description: constrainedStrings.description.optional(),
   items: z.array(viewItemSchema),
   rectangles: z.array(rectangleSchema).optional(),
+  groups: z.array(groupSchema).optional(),
   connectors: z.array(connectorSchema).optional(),
   textBoxes: z.array(textBoxSchema).optional()
 });

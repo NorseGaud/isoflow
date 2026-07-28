@@ -1,7 +1,12 @@
 import React, { useMemo } from 'react';
 import { Box, Typography } from '@mui/material';
 import { useScene } from 'src/hooks/useScene';
-import { connectorPathTileToGlobal, getTilePosition } from 'src/utils';
+import { useColor } from 'src/hooks/useColor';
+import {
+  connectorPathTileToGlobal,
+  getTilePosition,
+  resolveConnectorLabelStyle
+} from 'src/utils';
 import { PROJECTED_TILE_SIZE } from 'src/config';
 import { Label } from 'src/components/Label/Label';
 
@@ -10,6 +15,7 @@ interface Props {
 }
 
 export const ConnectorLabel = ({ connector }: Props) => {
+  const color = useColor(connector.color);
   const labelPosition = useMemo(() => {
     const tileIndex = Math.floor(connector.path.tiles.length / 2);
     const tile = connector.path.tiles[tileIndex];
@@ -18,6 +24,10 @@ export const ConnectorLabel = ({ connector }: Props) => {
       tile: connectorPathTileToGlobal(tile, connector.path.rectangle.from)
     });
   }, [connector.path]);
+
+  const labelStyle = useMemo(() => {
+    return resolveConnectorLabelStyle(connector.labelEmphasis, color.value);
+  }, [connector.labelEmphasis, color.value]);
 
   return (
     <Box
@@ -28,21 +38,8 @@ export const ConnectorLabel = ({ connector }: Props) => {
         top: labelPosition.y
       }}
     >
-      <Label
-        maxWidth={150}
-        labelHeight={0}
-        sx={{
-          py: 0.75,
-          px: 1,
-          borderRadius: 2
-        }}
-      >
-        <Typography
-          variant="body2"
-          sx={{
-            color: 'text.secondary'
-          }}
-        >
+      <Label maxWidth={150} labelHeight={0} sx={labelStyle.container}>
+        <Typography variant="body2" sx={labelStyle.text}>
           {connector.description}
         </Typography>
       </Label>

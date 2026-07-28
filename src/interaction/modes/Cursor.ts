@@ -153,6 +153,11 @@ export const Cursor: ModeActions = {
           type: 'RECTANGLE',
           id: uiState.mode.mousedownItem.id
         });
+      } else if (uiState.mode.mousedownItem.type === 'GROUP') {
+        uiState.actions.setItemControls({
+          type: 'GROUP',
+          id: uiState.mode.mousedownItem.id
+        });
       } else if (uiState.mode.mousedownItem.type === 'CONNECTOR') {
         uiState.actions.setItemControls({
           type: 'CONNECTOR',

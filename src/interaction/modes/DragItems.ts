@@ -28,6 +28,15 @@ const dragItems = (
       const newTo = CoordsUtils.add(rectangle.to, delta);
 
       scene.updateRectangle(item.id, { from: newFrom, to: newTo });
+    } else if (item.type === 'GROUP') {
+      const group = getItemByIdOrThrow(scene.groups, item.id).value;
+
+      group.memberIds.forEach((memberId) => {
+        const node = getItemByIdOrThrow(scene.items, memberId).value;
+        scene.updateViewItem(memberId, {
+          tile: CoordsUtils.add(node.tile, delta)
+        });
+      });
     } else if (item.type === 'TEXTBOX') {
       const textBox = getItemByIdOrThrow(scene.textBoxes, item.id).value;
 

@@ -65,6 +65,12 @@ export interface DrawRectangleMode {
   id: string | null;
 }
 
+export interface DrawGroupMode {
+  type: 'GROUP.DRAW';
+  showCursor: boolean;
+  region: { from: Coords; to: Coords } | null;
+}
+
 export const AnchorPositionOptions = {
   BOTTOM_LEFT: 'BOTTOM_LEFT',
   BOTTOM_RIGHT: 'BOTTOM_RIGHT',
@@ -94,6 +100,7 @@ export type Mode =
   | PlaceIconMode
   | ConnectorMode
   | DrawRectangleMode
+  | DrawGroupMode
   | TransformRectangleMode
   | DragItemsMode
   | TextBoxMode;

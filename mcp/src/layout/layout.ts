@@ -154,7 +154,10 @@ const barycenterOrder = (
 
 /**
  * Map rank r and position p within the rank to isometric tile coords.
- * x+y increases with flow; x-y spreads siblings.
+ *
+ * Prefer a horizontal screen flow: keep x+y roughly constant along a lane
+ * (isometric "level"), and advance x-y with rank so stages read left→right.
+ * Peers in the same rank spread along x+y (up/down on screen).
  */
 /** Tile distance between successive ranks / peers — keeps labels readable. */
 export const LAYOUT_RANK_SCALE = 3;
@@ -169,7 +172,7 @@ export const rankPositionToTile = (
   const spread = Math.round(centered);
   return {
     x: rank * LAYOUT_RANK_SCALE + spread * LAYOUT_PEER_SCALE,
-    y: rank * LAYOUT_RANK_SCALE - spread * LAYOUT_PEER_SCALE
+    y: -rank * LAYOUT_RANK_SCALE + spread * LAYOUT_PEER_SCALE
   };
 };
 
@@ -253,9 +256,10 @@ export const layoutDiagram = (
       let guard = 0;
 
       while (usedTiles.has(`${tile.x},${tile.y}`) && guard < 100) {
+        // Nudge along the peer (vertical) axis, not the flow axis.
         tile = {
           x: tile.x + LAYOUT_PEER_SCALE,
-          y: tile.y - LAYOUT_PEER_SCALE
+          y: tile.y + LAYOUT_PEER_SCALE
         };
         guard += 1;
       }

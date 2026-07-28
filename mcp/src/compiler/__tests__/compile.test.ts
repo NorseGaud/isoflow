@@ -26,6 +26,18 @@ describe('compileDiagramSpec', () => {
     expect(new Set(tiles).size).toBe(3);
   });
 
+  it('passes edge labelEmphasis onto connectors', () => {
+    const model = compileDiagramSpec({
+      projectName: 'Demo',
+      nodes: [
+        { key: 'a', label: 'A', icon: 'server' },
+        { key: 'b', label: 'B', icon: 'server' }
+      ],
+      edges: [{ from: 'a', to: 'b', labelEmphasis: 'CAPS', label: 'path' }]
+    });
+    expect(model.views[0].connectors?.[0].labelEmphasis).toBe('CAPS');
+  });
+
   it('preserves existing tiles for matching keys', () => {
     const first = compileDiagramSpec({
       projectName: 'Demo',
@@ -63,5 +75,53 @@ describe('compileDiagramSpec', () => {
     expect(tileA).toEqual({ x: 10, y: -3 });
     expect(tileB).toEqual({ x: 11, y: -2 });
     expect(second.views[0].items.find((item) => item.id === 'c')).toBeDefined();
+  });
+
+  it('emits view.groups instead of group rectangles', () => {
+    const model = compileDiagramSpec({
+      projectName: 'Demo',
+      nodes: [
+        { key: 'a', label: 'A', icon: 'server', group: 'path' },
+        { key: 'b', label: 'B', icon: 'server', group: 'path' },
+        { key: 'c', label: 'C', icon: 'server' }
+      ],
+      edges: [{ from: 'a', to: 'b' }],
+      groups: [{ key: 'path', label: 'Controller path', color: 'color2' }]
+    });
+
+    expect(model.views[0].rectangles).toBeUndefined();
+    expect(model.views[0].groups).toEqual([
+      {
+        id: 'path',
+        name: 'Controller path',
+        color: 'color2',
+        memberIds: ['a', 'b']
+      }
+    ]);
+  });
+
+  it('preserves existing groups when recompiling without a groups list', () => {
+    const first = compileDiagramSpec({
+      projectName: 'Demo',
+      nodes: [
+        { key: 'a', label: 'A', icon: 'server', group: 'path' },
+        { key: 'b', label: 'B', icon: 'server', group: 'path' }
+      ],
+      groups: [{ key: 'path', label: 'Path' }]
+    });
+
+    const second = compileDiagramSpec(
+      {
+        projectName: 'Demo',
+        nodes: [
+          { key: 'a', label: 'A', icon: 'server' },
+          { key: 'b', label: 'B', icon: 'server' },
+          { key: 'c', label: 'C', icon: 'server' }
+        ]
+      },
+      first
+    );
+
+    expect(second.views[0].groups).toEqual(first.views[0].groups);
   });
 });

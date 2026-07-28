@@ -114,4 +114,45 @@ describe('Model validation works correctly', () => {
 
     expect(issues[0].type).toStrictEqual('INVALID_RECTANGLE_COLOR_REF');
   });
+
+  test('A group with an invalid color fails validation', () => {
+    const model = produce(modelFixture, (draft) => {
+      draft.views[0].groups = [
+        {
+          id: 'g1',
+          name: 'Group',
+          color: 'invalidColor',
+          memberIds: [draft.views[0].items[0].id]
+        }
+      ];
+    });
+
+    const issues = validateModel(model);
+
+    expect(issues[0].type).toStrictEqual('INVALID_GROUP_COLOR_REF');
+  });
+
+  test('A group with an invalid member fails validation', () => {
+    const model = produce(modelFixture, (draft) => {
+      draft.views[0].groups = [
+        {
+          id: 'g1',
+          name: 'Group',
+          memberIds: ['missing-member']
+        }
+      ];
+    });
+
+    const issues = validateModel(model);
+
+    expect(issues[0].type).toStrictEqual('INVALID_GROUP_MEMBER_REF');
+  });
+
+  test('A view without groups still validates', () => {
+    const model = produce(modelFixture, (draft) => {
+      delete draft.views[0].groups;
+    });
+
+    expect(validateModel(model)).toHaveLength(0);
+  });
 });

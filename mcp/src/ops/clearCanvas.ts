@@ -13,6 +13,7 @@ export const clearCanvas = (model: InitialData | Model): Model => {
             items: [],
             connectors: [],
             rectangles: [],
+            groups: [],
             textBoxes: []
           }
         ]

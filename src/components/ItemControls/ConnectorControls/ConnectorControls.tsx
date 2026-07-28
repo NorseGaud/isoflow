@@ -1,5 +1,9 @@
 import React from 'react';
-import { Connector, connectorStyleOptions } from 'src/types';
+import {
+  Connector,
+  connectorLabelEmphasisOptions,
+  connectorStyleOptions
+} from 'src/types';
 import { Box, Slider, Select, MenuItem, TextField } from '@mui/material';
 import { useConnector } from 'src/hooks/useConnector';
 import { ColorSelector } from 'src/components/ColorSelector/ColorSelector';
@@ -32,6 +36,28 @@ export const ConnectorControls = ({ id }: Props) => {
             });
           }}
         />
+      </Section>
+      <Section title="Label emphasis">
+        <Select
+          value={connector.labelEmphasis}
+          onChange={(e) => {
+            updateConnector(connector.id, {
+              labelEmphasis: e.target.value as Connector['labelEmphasis']
+            });
+          }}
+        >
+          {connectorLabelEmphasisOptions.map((level) => {
+            return (
+              <MenuItem key={level} value={level}>
+                {level === 'SUBTLE'
+                  ? 'Subtle'
+                  : level === 'CHIP'
+                    ? 'Chip'
+                    : 'Caps'}
+              </MenuItem>
+            );
+          })}
+        </Select>
       </Section>
       <Section>
         <ColorSelector
