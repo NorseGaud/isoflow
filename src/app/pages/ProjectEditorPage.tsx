@@ -9,6 +9,8 @@ import {
   getWorkspaceById,
   parseProjectModel,
   ProjectRecord,
+  renameProject,
+  renameWorkspace,
   updateProjectModel,
   UserRecord,
   WorkspaceRecord
@@ -31,6 +33,7 @@ export const ProjectEditorPage = ({ user }: Props) => {
     'saved'
   );
   const [loadError, setLoadError] = useState<string | null>(null);
+  const [renameError, setRenameError] = useState<string | null>(null);
   const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const revisionRef = useRef(1);
   const suppressSaveUntilRef = useRef(0);
@@ -155,8 +158,36 @@ export const ProjectEditorPage = ({ user }: Props) => {
       variant="editor"
       breadcrumbs={[
         { label: 'Workspaces', to: '/' },
-        { label: workspace.name },
-        { label: project.name }
+        {
+          label: workspace.name,
+          onRename: async (name) => {
+            try {
+              setRenameError(null);
+              const next = await renameWorkspace(workspace.id, name);
+              setWorkspace(next);
+            } catch (err) {
+              setRenameError(
+                err instanceof Error
+                  ? err.message
+                  : 'Failed to rename workspace'
+              );
+            }
+          }
+        },
+        {
+          label: project.name,
+          onRename: async (name) => {
+            try {
+              setRenameError(null);
+              const next = await renameProject(project.id, name);
+              setProject(next);
+            } catch (err) {
+              setRenameError(
+                err instanceof Error ? err.message : 'Failed to rename project'
+              );
+            }
+          }
+        }
       ]}
       actions={
         <Stack
@@ -164,6 +195,21 @@ export const ProjectEditorPage = ({ user }: Props) => {
           spacing={1}
           sx={{ alignItems: 'center', minWidth: 0, flexShrink: 1 }}
         >
+          {renameError && (
+            <Typography
+              variant="body2"
+              color="secondary"
+              sx={{
+                display: { xs: 'none', md: 'block' },
+                whiteSpace: 'nowrap',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                maxWidth: 180
+              }}
+            >
+              {renameError}
+            </Typography>
+          )}
           <Typography
             variant="body2"
             color="text.secondary"
@@ -187,6 +233,7 @@ export const ProjectEditorPage = ({ user }: Props) => {
       <Isoflow
         key={project.id}
         initialData={initialData}
+        editorTitle={project.name}
         width="100%"
         height="100%"
         onModelUpdated={onModelUpdated}

@@ -24,10 +24,17 @@ const App = ({
   enableDebugTools = false,
   editorMode = 'EDITABLE',
   renderer,
+  editorTitle,
   bridge
 }: IsoflowProps) => {
   const uiStateActions = useUiStateStore((state) => {
     return state.actions;
+  });
+  const modelActions = useModelStore((state) => {
+    return state.actions;
+  });
+  const modelTitle = useModelStore((state) => {
+    return state.title;
   });
   const initialDataManager = useInitialDataManager();
   const model = useModelStore(
@@ -41,6 +48,11 @@ const App = ({
   useEffect(() => {
     load({ ...INITIAL_DATA, ...initialData });
   }, [initialData, load]);
+
+  useEffect(() => {
+    if (editorTitle === undefined || editorTitle === modelTitle) return;
+    modelActions.set({ title: editorTitle });
+  }, [editorTitle, modelActions, modelTitle]);
 
   useEffect(() => {
     uiStateActions.setEditorMode(editorMode);

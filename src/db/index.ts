@@ -19,6 +19,7 @@ export {
   listWorkspacesForUser,
   getWorkspaceById,
   createWorkspace,
+  renameWorkspace,
   deleteWorkspace
 } from './workspaces';
 export {
@@ -27,6 +28,7 @@ export {
   getProjectById,
   getProjectByName,
   createProject,
+  renameProject,
   updateProjectModel,
   deleteProject,
   parseProjectModel,

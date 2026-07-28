@@ -95,6 +95,18 @@ export const createWorkspace = async (
   return handleJson<WorkspaceRecord>(response);
 };
 
+export const renameWorkspace = async (
+  id: string,
+  name: string
+): Promise<WorkspaceRecord> => {
+  const response = await fetch(apiUrl(`/api/workspaces/${id}`), {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ name })
+  });
+  return handleJson<WorkspaceRecord>(response);
+};
+
 export const deleteWorkspace = async (id: string): Promise<void> => {
   const response = await fetch(apiUrl(`/api/workspaces/${id}`), {
     method: 'DELETE'
@@ -160,6 +172,18 @@ export const updateProjectModel = async (
     body: JSON.stringify({ model, expectedRevision })
   });
   return handleJson<UpdateProjectModelResult>(response);
+};
+
+export const renameProject = async (
+  id: string,
+  name: string
+): Promise<ProjectRecord> => {
+  const response = await fetch(apiUrl(`/api/projects/${id}`), {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ name })
+  });
+  return handleJson<ProjectRecord>(response);
 };
 
 export const deleteProject = async (id: string): Promise<void> => {

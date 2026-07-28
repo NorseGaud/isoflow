@@ -23,6 +23,8 @@ export interface IsoflowProps {
   enableDebugTools?: boolean;
   editorMode?: keyof typeof EditorModeEnum;
   renderer?: RendererProps;
+  /** Keep the live model title aligned with the project name. */
+  editorTitle?: string;
   /** Live sync with isoflow-server WebSocket (agent / multi-tab updates). */
   bridge?: IsoflowBridgeProps;
 }

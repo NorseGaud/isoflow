@@ -89,6 +89,26 @@ export const createWorkspace = async (
   return workspace;
 };
 
+export const renameWorkspace = async (
+  id: string,
+  name: string
+): Promise<WorkspaceRecord | null> => {
+  const workspace = await getWorkspaceById(id);
+
+  if (!workspace) return null;
+
+  const nextName = name.trim().slice(0, 100) || 'Untitled workspace';
+
+  await withDbWrite((db) => {
+    db.run('UPDATE workspaces SET name = ? WHERE id = ?', [nextName, id]);
+  });
+
+  return {
+    ...workspace,
+    name: nextName
+  };
+};
+
 export const deleteWorkspace = async (id: string): Promise<void> => {
   const workspace = await getWorkspaceById(id);
 

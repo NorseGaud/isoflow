@@ -1,6 +1,5 @@
 import React, { useCallback, useMemo, useRef } from 'react';
-import { Box, useTheme, Typography, Stack } from '@mui/material';
-import { ChevronRight } from '@mui/icons-material';
+import { Box, useTheme } from '@mui/material';
 import { EditorModeEnum } from 'src/types';
 import { UiElement } from 'components/UiElement/UiElement';
 import { SceneLayer } from 'src/components/SceneLayer/SceneLayer';
@@ -13,16 +12,13 @@ import { ZoomControls } from 'src/components/ZoomControls/ZoomControls';
 import { DebugUtils } from 'src/components/DebugUtils/DebugUtils';
 import { useResizeObserver } from 'src/hooks/useResizeObserver';
 import { ContextMenuManager } from 'src/components/ContextMenu/ContextMenuManager';
-import { useScene } from 'src/hooks/useScene';
-import { useModelStore } from 'src/stores/modelStore';
 import { ExportImageDialog } from '../ExportImageDialog/ExportImageDialog';
 
 const ToolsEnum = {
   MAIN_MENU: 'MAIN_MENU',
   ZOOM_CONTROLS: 'ZOOM_CONTROLS',
   TOOL_MENU: 'TOOL_MENU',
-  ITEM_CONTROLS: 'ITEM_CONTROLS',
-  VIEW_TITLE: 'VIEW_TITLE'
+  ITEM_CONTROLS: 'ITEM_CONTROLS'
 } as const;
 
 interface EditorModeMapping {
@@ -34,10 +30,9 @@ const EDITOR_MODE_MAPPING: EditorModeMapping = {
     'ITEM_CONTROLS',
     'ZOOM_CONTROLS',
     'TOOL_MENU',
-    'MAIN_MENU',
-    'VIEW_TITLE'
+    'MAIN_MENU'
   ],
-  [EditorModeEnum.EXPLORABLE_READONLY]: ['ZOOM_CONTROLS', 'VIEW_TITLE'],
+  [EditorModeEnum.EXPLORABLE_READONLY]: ['ZOOM_CONTROLS'],
   [EditorModeEnum.NON_INTERACTIVE]: []
 };
 
@@ -75,7 +70,6 @@ export const UiOverlay = () => {
   const itemControls = useUiStateStore((state) => {
     return state.itemControls;
   });
-  const { currentView } = useScene();
   const editorMode = useUiStateStore((state) => {
     return state.editorMode;
   });
@@ -84,9 +78,6 @@ export const UiOverlay = () => {
   }, [editorMode]);
   const rendererEl = useUiStateStore((state) => {
     return state.rendererEl;
-  });
-  const title = useModelStore((state) => {
-    return state.title;
   });
   const { size: rendererSize } = useResizeObserver(rendererEl);
 
@@ -162,58 +153,6 @@ export const UiOverlay = () => {
             }}
           >
             <MainMenu />
-          </Box>
-        )}
-
-        {availableTools.includes('VIEW_TITLE') && (
-          <Box
-            sx={{
-              position: 'absolute',
-              display: 'flex',
-              justifyContent: 'center',
-              transform: 'translateX(-50%)',
-              pointerEvents: 'none'
-            }}
-            style={{
-              left: rendererSize.width / 2,
-              top: rendererSize.height - appPadding.y * 2,
-              width: rendererSize.width - 500,
-              height: appPadding.y
-            }}
-          >
-            <UiElement
-              sx={{
-                display: 'inline-flex',
-                px: 2,
-                alignItems: 'center',
-                height: '100%'
-              }}
-            >
-              <Stack
-                direction="row"
-                sx={{
-                  alignItems: 'center'
-                }}
-              >
-                <Typography
-                  sx={{
-                    fontWeight: 600,
-                    color: 'text.secondary'
-                  }}
-                >
-                  {title}
-                </Typography>
-                <ChevronRight />
-                <Typography
-                  sx={{
-                    fontWeight: 600,
-                    color: 'text.secondary'
-                  }}
-                >
-                  {currentView.name}
-                </Typography>
-              </Stack>
-            </UiElement>
           </Box>
         )}
 

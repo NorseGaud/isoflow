@@ -187,6 +187,41 @@ export const createProject = async (
   return project;
 };
 
+export const renameProject = async (
+  id: string,
+  name: string
+): Promise<ProjectRecord | null> => {
+  const project = await getProjectById(id);
+
+  if (!project) return null;
+
+  const nextName = name.trim().slice(0, 100) || 'Untitled project';
+  const model = prepareModelForStorage({
+    ...JSON.parse(project.modelJson),
+    title: nextName
+  });
+  const modelJson = JSON.stringify(model);
+  const updatedAt = Date.now();
+
+  await withDbWrite((db) => {
+    db.run(
+      `
+        UPDATE projects
+        SET name = ?, model_json = ?, updated_at = ?
+        WHERE id = ?
+      `,
+      [nextName, modelJson, updatedAt, id]
+    );
+  });
+
+  return {
+    ...project,
+    name: nextName,
+    modelJson,
+    updatedAt
+  };
+};
+
 export type UpdateProjectModelResult = {
   revision: number;
   model: InitialData;

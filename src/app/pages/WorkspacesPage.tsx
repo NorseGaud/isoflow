@@ -9,6 +9,8 @@ import {
   listProjectsForWorkspace,
   listWorkspacesForUser,
   ProjectRecord,
+  renameProject,
+  renameWorkspace,
   UserRecord,
   WorkspaceRecord
 } from 'src/api/client';
@@ -20,9 +22,11 @@ type Props = {
   user: UserRecord;
 };
 
-type CreateDialog =
-  | { type: 'workspace' }
-  | { type: 'project'; workspaceId: string }
+type NameDialogState =
+  | { type: 'create-workspace' }
+  | { type: 'create-project'; workspaceId: string }
+  | { type: 'rename-workspace'; id: string; name: string }
+  | { type: 'rename-project'; id: string; name: string }
   | null;
 
 export const WorkspacesPage = ({ user }: Props) => {
@@ -31,7 +35,7 @@ export const WorkspacesPage = ({ user }: Props) => {
   const [projectsByWorkspace, setProjectsByWorkspace] = useState<
     Record<string, ProjectRecord[]>
   >({});
-  const [createDialog, setCreateDialog] = useState<CreateDialog>(null);
+  const [nameDialog, setNameDialog] = useState<NameDialogState>(null);
   const [error, setError] = useState<string | null>(null);
 
   const refresh = useCallback(async () => {
@@ -62,10 +66,19 @@ export const WorkspacesPage = ({ user }: Props) => {
         workspaces={workspaces}
         projectsByWorkspace={projectsByWorkspace}
         onCreateWorkspace={() => {
-          setCreateDialog({ type: 'workspace' });
+          setNameDialog({ type: 'create-workspace' });
+        }}
+        onRenameWorkspace={(id) => {
+          const workspace = workspaces.find((item) => item.id === id);
+          if (!workspace) return;
+          setNameDialog({
+            type: 'rename-workspace',
+            id,
+            name: workspace.name
+          });
         }}
         onCreateProject={(workspaceId) => {
-          setCreateDialog({ type: 'project', workspaceId });
+          setNameDialog({ type: 'create-project', workspaceId });
         }}
         onDeleteWorkspace={async (id) => {
           try {
@@ -81,6 +94,17 @@ export const WorkspacesPage = ({ user }: Props) => {
         onOpenProject={(workspaceId, projectId) => {
           navigate(`/workspaces/${workspaceId}/projects/${projectId}`);
         }}
+        onRenameProject={(projectId) => {
+          const project = Object.values(projectsByWorkspace)
+            .flat()
+            .find((item) => item.id === projectId);
+          if (!project) return;
+          setNameDialog({
+            type: 'rename-project',
+            id: projectId,
+            name: project.name
+          });
+        }}
         onDeleteProject={async (projectId) => {
           try {
             setError(null);
@@ -95,34 +119,92 @@ export const WorkspacesPage = ({ user }: Props) => {
       />
 
       <NameDialog
-        open={createDialog?.type === 'workspace'}
+        open={nameDialog?.type === 'create-workspace'}
         title="Create workspace"
         label="Workspace name"
         onClose={() => {
-          setCreateDialog(null);
+          setNameDialog(null);
         }}
         onConfirm={async (name) => {
-          setCreateDialog(null);
+          setNameDialog(null);
           await createWorkspace(user.id, name);
           await refresh();
         }}
       />
 
       <NameDialog
-        open={createDialog?.type === 'project'}
+        open={nameDialog?.type === 'create-project'}
         title="Create project"
         label="Project name"
         onClose={() => {
-          setCreateDialog(null);
+          setNameDialog(null);
         }}
         onConfirm={async (name) => {
-          if (createDialog?.type !== 'project') return;
+          if (nameDialog?.type !== 'create-project') return;
 
-          const { workspaceId } = createDialog;
-          setCreateDialog(null);
+          const { workspaceId } = nameDialog;
+          setNameDialog(null);
           const project = await createProject(workspaceId, name);
           await refresh();
           navigate(`/workspaces/${workspaceId}/projects/${project.id}`);
+        }}
+      />
+
+      <NameDialog
+        open={nameDialog?.type === 'rename-workspace'}
+        title="Rename workspace"
+        label="Workspace name"
+        confirmLabel="Rename"
+        initialValue={
+          nameDialog?.type === 'rename-workspace' ? nameDialog.name : ''
+        }
+        onClose={() => {
+          setNameDialog(null);
+        }}
+        onConfirm={async (name) => {
+          if (nameDialog?.type !== 'rename-workspace') return;
+
+          const { id } = nameDialog;
+          setNameDialog(null);
+
+          try {
+            setError(null);
+            await renameWorkspace(id, name);
+            await refresh();
+          } catch (err) {
+            setError(
+              err instanceof Error ? err.message : 'Failed to rename workspace'
+            );
+          }
+        }}
+      />
+
+      <NameDialog
+        open={nameDialog?.type === 'rename-project'}
+        title="Rename project"
+        label="Project name"
+        confirmLabel="Rename"
+        initialValue={
+          nameDialog?.type === 'rename-project' ? nameDialog.name : ''
+        }
+        onClose={() => {
+          setNameDialog(null);
+        }}
+        onConfirm={async (name) => {
+          if (nameDialog?.type !== 'rename-project') return;
+
+          const { id } = nameDialog;
+          setNameDialog(null);
+
+          try {
+            setError(null);
+            await renameProject(id, name);
+            await refresh();
+          } catch (err) {
+            setError(
+              err instanceof Error ? err.message : 'Failed to rename project'
+            );
+          }
         }}
       />
     </AppShell>

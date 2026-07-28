@@ -85,6 +85,40 @@ describe('isoflow server REST', () => {
     expect(byName.body.id).toBe(projectId);
   });
 
+  it('renames workspaces and projects (syncing model title)', async () => {
+    const app = createApp();
+
+    const workspaces = await request(app).get('/api/workspaces').expect(200);
+    const workspaceId = workspaces.body[0].id as string;
+
+    const renamedWorkspace = await request(app)
+      .patch(`/api/workspaces/${workspaceId}`)
+      .send({ name: 'Renamed workspace' })
+      .expect(200);
+
+    expect(renamedWorkspace.body.name).toBe('Renamed workspace');
+
+    const created = await request(app)
+      .post('/api/projects')
+      .send({ workspaceId, name: 'Old name' })
+      .expect(201);
+
+    const projectId = created.body.id as string;
+
+    const renamedProject = await request(app)
+      .patch(`/api/projects/${projectId}`)
+      .send({ name: 'New name' })
+      .expect(200);
+
+    expect(renamedProject.body.name).toBe('New name');
+
+    const modelResponse = await request(app)
+      .get(`/api/projects/${projectId}/model`)
+      .expect(200);
+
+    expect(modelResponse.body.model.title).toBe('New name');
+  });
+
   it('writes through the filesystem adapter', async () => {
     await resetDbClientForTests();
     resetInitializeAppDbForTests();

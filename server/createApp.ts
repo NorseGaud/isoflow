@@ -17,6 +17,8 @@ import {
   listProjectsForWorkspace,
   listWorkspacesForUser,
   parseProjectModel,
+  renameProject,
+  renameWorkspace,
   RevisionConflictError,
   seedDefaults,
   updateProjectModel,
@@ -108,6 +110,22 @@ export const createApp = () => {
     }
   });
 
+  app.patch('/api/workspaces/:id', async (req, res, next) => {
+    try {
+      const name = String(req.body.name ?? '');
+      const workspace = await renameWorkspace(req.params.id, name);
+
+      if (!workspace) {
+        res.status(404).json({ error: 'Workspace not found' });
+        return;
+      }
+
+      res.json(workspace);
+    } catch (error) {
+      next(error);
+    }
+  });
+
   app.delete('/api/workspaces/:id', async (req, res, next) => {
     try {
       await deleteWorkspace(req.params.id);
@@ -177,6 +195,22 @@ export const createApp = () => {
 
       const project = await createProject(workspaceId, name);
       res.status(201).json(project);
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  app.patch('/api/projects/:id', async (req, res, next) => {
+    try {
+      const name = String(req.body.name ?? '');
+      const project = await renameProject(req.params.id, name);
+
+      if (!project) {
+        res.status(404).json({ error: 'Project not found' });
+        return;
+      }
+
+      res.json(project);
     } catch (error) {
       next(error);
     }

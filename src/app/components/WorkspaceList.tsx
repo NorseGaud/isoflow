@@ -9,6 +9,7 @@ import {
 import {
   Add as AddIcon,
   DeleteOutlined as DeleteIcon,
+  EditOutlined as EditIcon,
   FolderOutlined as FolderIcon,
   AccountTreeOutlined as ProjectIcon
 } from '@mui/icons-material';
@@ -18,9 +19,11 @@ type Props = {
   workspaces: WorkspaceRecord[];
   projectsByWorkspace: Record<string, ProjectRecord[]>;
   onCreateWorkspace: () => void;
+  onRenameWorkspace: (id: string) => void;
   onDeleteWorkspace: (id: string) => void;
   onCreateProject: (workspaceId: string) => void;
   onOpenProject: (workspaceId: string, projectId: string) => void;
+  onRenameProject: (projectId: string) => void;
   onDeleteProject: (projectId: string) => void;
 };
 
@@ -28,9 +31,11 @@ export const WorkspaceList = ({
   workspaces,
   projectsByWorkspace,
   onCreateWorkspace,
+  onRenameWorkspace,
   onDeleteWorkspace,
   onCreateProject,
   onOpenProject,
+  onRenameProject,
   onDeleteProject
 }: Props) => {
   return (
@@ -130,6 +135,15 @@ export const WorkspaceList = ({
                       {projects.length === 1 ? 'project' : 'projects'}
                     </Typography>
                   </Box>
+                  <IconButton
+                    aria-label={`Rename ${workspace.name}`}
+                    sx={{ flexShrink: 0 }}
+                    onClick={() => {
+                      onRenameWorkspace(workspace.id);
+                    }}
+                  >
+                    <EditIcon />
+                  </IconButton>
                   <IconButton
                     aria-label={`Delete ${workspace.name}`}
                     sx={{ flexShrink: 0 }}
@@ -267,6 +281,21 @@ export const WorkspaceList = ({
                                 {new Date(project.updatedAt).toLocaleString()}
                               </Typography>
                             </Box>
+                            <IconButton
+                              aria-label={`Rename ${project.name}`}
+                              size="small"
+                              sx={{
+                                flexShrink: 0,
+                                opacity: 0.55,
+                                '&:hover': { opacity: 1 }
+                              }}
+                              onClick={(event) => {
+                                event.stopPropagation();
+                                onRenameProject(project.id);
+                              }}
+                            >
+                              <EditIcon fontSize="inherit" />
+                            </IconButton>
                             <IconButton
                               aria-label={`Delete ${project.name}`}
                               size="small"

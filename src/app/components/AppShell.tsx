@@ -1,12 +1,131 @@
-import React from 'react';
-import { Box, Stack, Typography } from '@mui/material';
+import React, { useEffect, useRef, useState } from 'react';
+import { Box, Stack, TextField, Typography } from '@mui/material';
 import { Link as RouterLink } from 'react-router-dom';
 
+export type AppShellBreadcrumb = {
+  label: string;
+  to?: string;
+  onRename?: (name: string) => void | Promise<void>;
+};
+
 type Props = {
-  breadcrumbs?: { label: string; to?: string }[];
+  breadcrumbs?: AppShellBreadcrumb[];
   actions?: React.ReactNode;
   variant?: 'page' | 'editor';
   children?: React.ReactNode;
+};
+
+const EditableBreadcrumb = ({
+  label,
+  onRename
+}: {
+  label: string;
+  onRename: (name: string) => void | Promise<void>;
+}) => {
+  const [editing, setEditing] = useState(false);
+  const [draft, setDraft] = useState(label);
+  const inputRef = useRef<HTMLInputElement | null>(null);
+
+  useEffect(() => {
+    if (!editing) {
+      setDraft(label);
+    }
+  }, [editing, label]);
+
+  useEffect(() => {
+    if (editing) {
+      inputRef.current?.focus();
+      inputRef.current?.select();
+    }
+  }, [editing]);
+
+  const commit = async () => {
+    const next = draft.trim();
+    setEditing(false);
+
+    if (!next || next === label) {
+      setDraft(label);
+      return;
+    }
+
+    await onRename(next);
+  };
+
+  if (editing) {
+    return (
+      <TextField
+        inputRef={inputRef}
+        size="small"
+        value={draft}
+        onChange={(event) => {
+          setDraft(event.target.value);
+        }}
+        onBlur={() => {
+          void commit();
+        }}
+        onKeyDown={(event) => {
+          if (event.key === 'Enter') {
+            event.preventDefault();
+            void commit();
+          }
+
+          if (event.key === 'Escape') {
+            event.preventDefault();
+            setDraft(label);
+            setEditing(false);
+          }
+        }}
+        slotProps={{
+          htmlInput: {
+            'aria-label': `Rename ${label}`,
+            maxLength: 100
+          }
+        }}
+        sx={{
+          minWidth: 0,
+          maxWidth: 220,
+          '& .MuiInputBase-input': {
+            py: 0.25,
+            px: 0.75,
+            fontSize: '0.875rem',
+            fontWeight: 500
+          }
+        }}
+      />
+    );
+  }
+
+  return (
+    <Typography
+      component="button"
+      type="button"
+      variant="body2"
+      onClick={() => {
+        setEditing(true);
+      }}
+      title="Click to rename"
+      sx={{
+        color: 'text.primary',
+        fontWeight: 500,
+        border: 0,
+        background: 'none',
+        p: 0,
+        m: 0,
+        cursor: 'text',
+        overflow: 'hidden',
+        textOverflow: 'ellipsis',
+        whiteSpace: 'nowrap',
+        minWidth: 0,
+        maxWidth: '100%',
+        borderRadius: 0.5,
+        '&:hover': {
+          bgcolor: 'action.hover'
+        }
+      }}
+    >
+      {label}
+    </Typography>
+  );
 };
 
 export const AppShell = ({
@@ -95,7 +214,12 @@ export const AppShell = ({
                           /
                         </Typography>
                       )}
-                      {crumb.to && !isLast ? (
+                      {crumb.onRename ? (
+                        <EditableBreadcrumb
+                          label={crumb.label}
+                          onRename={crumb.onRename}
+                        />
+                      ) : crumb.to && !isLast ? (
                         <Typography
                           component={RouterLink}
                           to={crumb.to}
