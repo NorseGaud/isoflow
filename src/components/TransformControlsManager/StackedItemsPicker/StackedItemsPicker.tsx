@@ -18,6 +18,10 @@ interface Props {
   onSelect: (id: string) => void;
 }
 
+const hasOptionName = (option: StackedItemOption) => {
+  return Boolean(option.name.trim());
+};
+
 export const StackedItemsPicker = ({
   tile,
   selectedId,
@@ -31,6 +35,10 @@ export const StackedItemsPicker = ({
   const position = useMemo(() => {
     return getTilePosition({ tile, origin: 'BOTTOM' });
   }, [tile]);
+
+  const useInlineLayout = options.some((option) => {
+    return !hasOptionName(option);
+  });
 
   useEffect(() => {
     setAnchorEl(anchorRef.current);
@@ -70,25 +78,39 @@ export const StackedItemsPicker = ({
         }}
       >
         <Stack
-          sx={{ minWidth: 220, maxWidth: 280, py: 0.5 }}
+          direction={useInlineLayout ? 'row' : 'column'}
+          data-layout={useInlineLayout ? 'row' : 'column'}
           role="listbox"
           aria-label="Stacked icons"
+          sx={{
+            minWidth: useInlineLayout ? 280 : 220,
+            maxWidth: useInlineLayout ? 360 : 280,
+            py: 0.5,
+            alignItems: 'stretch'
+          }}
         >
           {options.map((option) => {
             const isSelected = option.id === selectedId;
+            const named = hasOptionName(option);
+            const iconSize = useInlineLayout && !named ? 48 : 28;
 
             return (
               <ButtonBase
                 key={option.id}
                 role="option"
                 aria-selected={isSelected}
+                aria-label={named ? undefined : 'Untitled icon'}
                 onClick={() => {
                   onSelect(option.id);
                 }}
                 sx={{
                   display: 'flex',
-                  alignItems: 'flex-start',
-                  gap: 1,
+                  flexDirection: named ? 'row' : 'column',
+                  alignItems: 'center',
+                  justifyContent: named ? 'flex-start' : 'center',
+                  gap: named ? 1 : 0,
+                  flex: named ? '1 1 0' : '0 0 auto',
+                  minWidth: named ? 0 : iconSize + 24,
                   px: 1.5,
                   py: 1,
                   textAlign: 'left',
@@ -104,46 +126,48 @@ export const StackedItemsPicker = ({
                     src={option.iconUrl}
                     alt=""
                     sx={{
-                      width: 24,
-                      height: 24,
+                      width: iconSize,
+                      height: iconSize,
                       objectFit: 'contain',
-                      flexShrink: 0,
-                      mt: 0.25
+                      flexShrink: 0
                     }}
                   />
                 ) : (
                   <Box
                     sx={{
-                      width: 24,
-                      height: 24,
-                      flexShrink: 0,
-                      mt: 0.25
+                      width: iconSize,
+                      height: iconSize,
+                      flexShrink: 0
                     }}
                   />
                 )}
-                <Box sx={{ minWidth: 0 }}>
-                  <Typography
-                    variant="body2"
-                    noWrap
-                    sx={{ fontWeight: 600 }}
-                  >
-                    {option.name}
-                  </Typography>
-                  {option.description && (
-                    <Typography
-                      variant="caption"
-                      color="text.secondary"
-                      sx={{
-                        display: '-webkit-box',
-                        WebkitLineClamp: 2,
-                        WebkitBoxOrient: 'vertical',
-                        overflow: 'hidden'
-                      }}
-                    >
-                      {option.description}
-                    </Typography>
-                  )}
-                </Box>
+                {(named || option.description) && (
+                  <Box sx={{ minWidth: 0, flex: named ? 1 : undefined }}>
+                    {named && (
+                      <Typography
+                        variant="body2"
+                        noWrap
+                        sx={{ fontWeight: 600 }}
+                      >
+                        {option.name}
+                      </Typography>
+                    )}
+                    {option.description && (
+                      <Typography
+                        variant="caption"
+                        color="text.secondary"
+                        sx={{
+                          display: '-webkit-box',
+                          WebkitLineClamp: 2,
+                          WebkitBoxOrient: 'vertical',
+                          overflow: 'hidden'
+                        }}
+                      >
+                        {option.description}
+                      </Typography>
+                    )}
+                  </Box>
+                )}
               </ButtonBase>
             );
           })}

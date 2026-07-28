@@ -57,4 +57,39 @@ describe('StackedItemsPicker', () => {
 
     expect(container.firstChild).toBeNull();
   });
+
+  test('lays out nameless icons beside named options', async () => {
+    const user = userEvent.setup();
+    const onSelect = jest.fn();
+
+    render(
+      <StackedItemsPicker
+        tile={{ x: 0, y: 0 }}
+        selectedId="n1"
+        options={[
+          {
+            id: 'n1',
+            name: '',
+            description: null,
+            iconUrl: 'https://example.com/a.png'
+          },
+          {
+            id: 'n2',
+            name: 'Anka VMs',
+            description: null,
+            iconUrl: 'https://example.com/b.png'
+          }
+        ]}
+        onSelect={onSelect}
+      />
+    );
+
+    const listbox = screen.getByRole('listbox', { name: /stacked icons/i });
+    expect(listbox.getAttribute('data-layout')).toBe('row');
+    expect(screen.getByText('Anka VMs')).toBeTruthy();
+
+    await user.click(screen.getByRole('option', { name: /untitled icon/i }));
+
+    expect(onSelect).toHaveBeenCalledWith('n1');
+  });
 });
