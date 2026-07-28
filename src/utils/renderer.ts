@@ -516,6 +516,22 @@ export const getItemAtTile = ({
   return null;
 };
 
+export const getItemsAtTile = ({
+  tile,
+  scene
+}: GetItemAtTile): ItemReference[] => {
+  return scene.items
+    .filter((item) => {
+      return CoordsUtils.isEqual(item.tile, tile);
+    })
+    .map((item) => {
+      return {
+        type: 'ITEM' as const,
+        id: item.id
+      };
+    });
+};
+
 interface FontProps {
   fontWeight: number | string;
   fontSize: number;
