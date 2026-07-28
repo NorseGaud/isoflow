@@ -93,20 +93,21 @@ describe('NodeTransformControls stacked picker', () => {
     );
   });
 
-  test('shows stack badge when multiple nodes share the selected tile', () => {
+  test('shows picker rows when multiple nodes share the selected tile', () => {
     render(<NodeTransformControls id="n1" />);
 
     expect(screen.getByTestId('transform-controls')).toBeTruthy();
-    expect(screen.getByRole('button', { name: /2 icons/i })).toBeTruthy();
+    expect(screen.getByText('First')).toBeTruthy();
+    expect(screen.getByText('Second')).toBeTruthy();
   });
 
-  test('hides stack badge when selected tile has a single node', () => {
+  test('hides picker when selected tile has a single node', () => {
     mockUseScene.mockReturnValue({
       items: [{ id: 'n1', tile: { x: 0, y: 0 } }]
     });
 
     render(<NodeTransformControls id="n1" />);
 
-    expect(screen.queryByRole('button', { name: /icons/i })).toBeNull();
+    expect(screen.queryByText('First')).toBeNull();
   });
 });

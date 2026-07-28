@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
   Box,
   Popover,
@@ -24,12 +24,18 @@ export const StackedItemsPicker = ({
   options,
   onSelect
 }: Props) => {
+  const anchorRef = useRef<HTMLDivElement | null>(null);
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
-  const open = Boolean(anchorEl);
+  const [isOpen, setIsOpen] = useState(true);
 
   const position = useMemo(() => {
     return getTilePosition({ tile, origin: 'BOTTOM' });
   }, [tile]);
+
+  useEffect(() => {
+    setAnchorEl(anchorRef.current);
+    setIsOpen(true);
+  }, [tile, options.length]);
 
   if (options.length < 2) {
     return null;
@@ -38,45 +44,24 @@ export const StackedItemsPicker = ({
   return (
     <>
       <Box
+        ref={anchorRef}
         sx={{
           position: 'absolute',
-          zIndex: 2
+          zIndex: 2,
+          width: 0,
+          height: 0
         }}
         style={{
           left: position.x + PROJECTED_TILE_SIZE.width * 0.35,
           top: position.y - PROJECTED_TILE_SIZE.height * 0.75
         }}
-      >
-        <ButtonBase
-          aria-label={`${options.length} icons`}
-          onMouseDown={(e) => {
-            e.stopPropagation();
-          }}
-          onClick={(e) => {
-            setAnchorEl(e.currentTarget);
-          }}
-          sx={{
-            px: 1,
-            py: 0.25,
-            borderRadius: 1,
-            bgcolor: 'common.white',
-            border: '1px solid',
-            borderColor: 'divider',
-            boxShadow: 1,
-            typography: 'caption',
-            fontWeight: 600,
-            whiteSpace: 'nowrap'
-          }}
-        >
-          {`${options.length} icons`}
-        </ButtonBase>
-      </Box>
+      />
 
       <Popover
-        open={open}
+        open={isOpen && Boolean(anchorEl)}
         anchorEl={anchorEl}
         onClose={() => {
-          setAnchorEl(null);
+          setIsOpen(false);
         }}
         anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
         transformOrigin={{ vertical: 'top', horizontal: 'left' }}
@@ -84,16 +69,21 @@ export const StackedItemsPicker = ({
           e.stopPropagation();
         }}
       >
-        <Stack sx={{ minWidth: 220, maxWidth: 280, py: 0.5 }}>
+        <Stack
+          sx={{ minWidth: 220, maxWidth: 280, py: 0.5 }}
+          role="listbox"
+          aria-label="Stacked icons"
+        >
           {options.map((option) => {
             const isSelected = option.id === selectedId;
 
             return (
               <ButtonBase
                 key={option.id}
+                role="option"
+                aria-selected={isSelected}
                 onClick={() => {
                   onSelect(option.id);
-                  setAnchorEl(null);
                 }}
                 sx={{
                   display: 'flex',

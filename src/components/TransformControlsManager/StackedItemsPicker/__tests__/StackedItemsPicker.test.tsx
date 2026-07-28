@@ -22,7 +22,7 @@ const options = [
 ];
 
 describe('StackedItemsPicker', () => {
-  test('shows count badge and selects item from popover', async () => {
+  test('shows picker rows by default and selects an item', async () => {
     const user = userEvent.setup();
     const onSelect = jest.fn();
 
@@ -35,13 +35,10 @@ describe('StackedItemsPicker', () => {
       />
     );
 
-    expect(screen.getByRole('button', { name: /2 icons/i })).toBeTruthy();
-
-    await user.click(screen.getByRole('button', { name: /2 icons/i }));
-
     expect(screen.getByText('First')).toBeTruthy();
     expect(screen.getByText('Alpha desc')).toBeTruthy();
     expect(screen.getByText('Second')).toBeTruthy();
+    expect(screen.queryByRole('button', { name: /2 icons/i })).toBeNull();
 
     await user.click(screen.getByText('Second'));
 
