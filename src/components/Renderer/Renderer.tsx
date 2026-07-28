@@ -44,6 +44,7 @@ export const Renderer = ({ showGrid, backgroundColor }: RendererProps) => {
   return (
     <Box
       ref={containerRef}
+      data-testid="isoflow-renderer"
       sx={{
         position: 'absolute',
         top: 0,

@@ -10,7 +10,7 @@ describe('layout', () => {
     const a = rankPositionToTile(0, 0, 1);
     const b = rankPositionToTile(1, 0, 1);
     expect(a).toEqual({ x: 0, y: 0 });
-    expect(b).toEqual({ x: 1, y: 1 });
+    expect(b).toEqual({ x: 3, y: 3 });
   });
 
   it('breaks cycles by removing back-edges', () => {

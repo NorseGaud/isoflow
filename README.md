@@ -42,10 +42,11 @@ This fork includes a Node API server, live WebSocket bridge, and an MCP server s
 ```bash
 npm run start:server   # API + WS on :9324
 npm start              # web app on :9323
-# MCP: see mcp.config.example.json
+# MCP: see mcp.config.example.json (set ISOFLOW_API_URL + ISOFLOW_APP_URL)
+npx playwright install chromium   # once, for isoflow_screenshot
 ```
 
-Details are in [CONTRIBUTING.md](./CONTRIBUTING.md).
+Details are in [CONTRIBUTING.md](./CONTRIBUTING.md). Agent/MCP parity rules are in [AGENTS.md](./AGENTS.md).
 
 ## Professional support
 For professional support, please consider purchasing a license for Isoflow Pro.  Isoflow Pro includes additional features and support options.  For more information, visit [isoflow.io](https://isoflow.io).

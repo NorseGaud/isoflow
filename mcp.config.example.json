@@ -9,7 +9,8 @@
       ],
       "cwd": "/absolute/path/to/isoflow",
       "env": {
-        "ISOFLOW_API_URL": "http://localhost:9324"
+        "ISOFLOW_API_URL": "http://localhost:9324",
+        "ISOFLOW_APP_URL": "http://localhost:9323"
       }
     }
   }

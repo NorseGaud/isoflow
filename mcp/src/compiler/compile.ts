@@ -108,7 +108,9 @@ export const compileDiagramSpec = (
   const viewItems = layout.nodes.map((laidOut) => {
     return {
       id: laidOut.key,
-      tile: existingTiles.get(laidOut.key) ?? laidOut.tile
+      tile: existingTiles.get(laidOut.key) ?? laidOut.tile,
+      showLabel: true,
+      labelHeight: 90
     };
   });
 
@@ -148,20 +150,9 @@ export const compileDiagramSpec = (
     items: viewItems,
     rectangles,
     connectors,
-    textBoxes: groups
-      .filter((group) => Boolean(group.label))
-      .map((group) => {
-        const laidOut = layout.groups.find((entry) => entry.key === group.key);
-        return {
-          id: `text-${group.key}`,
-          tile: laidOut
-            ? { x: laidOut.from.x, y: laidOut.from.y }
-            : { x: 0, y: 0 },
-          content: (group.label ?? group.key).slice(0, 100),
-          fontSize: 0.7,
-          orientation: 'X' as const
-        };
-      })
+    // Intentionally no group title textBoxes — isometric text overlaps icons.
+    // Region meaning comes from node names + rectangle color only.
+    textBoxes: []
   };
 
   const neededIconIds = new Set(

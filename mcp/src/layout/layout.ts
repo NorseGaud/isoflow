@@ -156,6 +156,10 @@ const barycenterOrder = (
  * Map rank r and position p within the rank to isometric tile coords.
  * x+y increases with flow; x-y spreads siblings.
  */
+/** Tile distance between successive ranks / peers — keeps labels readable. */
+export const LAYOUT_RANK_SCALE = 3;
+export const LAYOUT_PEER_SCALE = 2;
+
 export const rankPositionToTile = (
   rank: number,
   position: number,
@@ -164,8 +168,8 @@ export const rankPositionToTile = (
   const centered = position - (rankSize - 1) / 2;
   const spread = Math.round(centered);
   return {
-    x: rank + spread,
-    y: rank - spread
+    x: rank * LAYOUT_RANK_SCALE + spread * LAYOUT_PEER_SCALE,
+    y: rank * LAYOUT_RANK_SCALE - spread * LAYOUT_PEER_SCALE
   };
 };
 
@@ -249,7 +253,10 @@ export const layoutDiagram = (
       let guard = 0;
 
       while (usedTiles.has(`${tile.x},${tile.y}`) && guard < 100) {
-        tile = { x: tile.x + 1, y: tile.y - 1 };
+        tile = {
+          x: tile.x + LAYOUT_PEER_SCALE,
+          y: tile.y - LAYOUT_PEER_SCALE
+        };
         guard += 1;
       }
 

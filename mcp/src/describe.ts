@@ -6,7 +6,9 @@ export const describeModel = (model: Model): string => {
   const lines: string[] = [];
 
   lines.push(`Title: ${model.title}`);
-  lines.push(`Revision data: ${model.items.length} nodes, ${view?.connectors?.length ?? 0} connectors, ${view?.rectangles?.length ?? 0} regions`);
+  lines.push(
+    `Counts: ${model.items.length} nodes, ${view?.connectors?.length ?? 0} connectors, ${view?.rectangles?.length ?? 0} regions, ${view?.textBoxes?.length ?? 0} text boxes`
+  );
 
   if (!view) {
     lines.push('(no views)');
@@ -18,11 +20,16 @@ export const describeModel = (model: Model): string => {
 
   view.items.forEach((viewItem) => {
     const item = model.items.find((entry) => entry.id === viewItem.id);
-    const icon = item?.icon
-      ? model.icons.find((entry) => entry.id === item.icon)
-      : undefined;
+    const extras: string[] = [];
+    if (viewItem.showLabel === false) extras.push('label=hidden');
+    if (viewItem.rotation !== undefined) {
+      extras.push(`rotation=${viewItem.rotation}`);
+    }
+    if (viewItem.labelHeight !== undefined) {
+      extras.push(`labelHeight=${viewItem.labelHeight}`);
+    }
     lines.push(
-      `- ${viewItem.id}: "${item?.name ?? viewItem.id}" icon=${icon?.id ?? item?.icon ?? 'none'} tile=(${viewItem.tile.x},${viewItem.tile.y})`
+      `- ${viewItem.id}: "${item?.name ?? viewItem.id}" icon=${item?.icon ?? 'none'} tile=(${viewItem.tile.x},${viewItem.tile.y})${extras.length ? ` ${extras.join(' ')}` : ''}`
     );
   });
 
@@ -39,7 +46,14 @@ export const describeModel = (model: Model): string => {
           return 'anchor';
         })
         .join(' -> ');
-      lines.push(`- ${connector.id}: ${ends}${connector.style ? ` [${connector.style}]` : ''}`);
+      const bits = [
+        connector.style,
+        connector.width !== undefined ? `w=${connector.width}` : undefined,
+        connector.description ? `"${connector.description}"` : undefined
+      ].filter(Boolean);
+      lines.push(
+        `- ${connector.id}: ${ends}${bits.length ? ` [${bits.join(' ')}]` : ''}`
+      );
     });
   }
 
@@ -48,7 +62,17 @@ export const describeModel = (model: Model): string => {
     lines.push('Regions:');
     view.rectangles.forEach((rectangle) => {
       lines.push(
-        `- ${rectangle.id}: (${rectangle.from.x},${rectangle.from.y}) -> (${rectangle.to.x},${rectangle.to.y})`
+        `- ${rectangle.id}: (${rectangle.from.x},${rectangle.from.y}) -> (${rectangle.to.x},${rectangle.to.y})${rectangle.color ? ` color=${rectangle.color}` : ''}`
+      );
+    });
+  }
+
+  if (view.textBoxes && view.textBoxes.length > 0) {
+    lines.push('');
+    lines.push('Text boxes:');
+    view.textBoxes.forEach((textBox) => {
+      lines.push(
+        `- ${textBox.id}: "${textBox.content}" tile=(${textBox.tile.x},${textBox.tile.y})${textBox.fontSize !== undefined ? ` fontSize=${textBox.fontSize}` : ''}`
       );
     });
   }

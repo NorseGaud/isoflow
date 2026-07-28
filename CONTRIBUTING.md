@@ -62,7 +62,16 @@ See `mcp.config.example.json`. Point Cursor (or another MCP host) at:
 npx tsx --tsconfig mcp/tsconfig.json mcp/src/server.ts
 ```
 
-with `ISOFLOW_API_URL=http://localhost:9324`. Main tool: `isoflow_apply_diagram` (semantic nodes/edges → laid-out Model).
+Set both (defaults are for local dev only; use real origins in deployed environments):
+
+```bash
+ISOFLOW_API_URL=http://localhost:9324
+ISOFLOW_APP_URL=http://localhost:9323
+```
+
+Tools cover workspace/project CRUD, diagram editing, custom icons, JSON import/export, and `isoflow_screenshot` (see `mcp/src/server.ts`). For screenshots, install Chromium once: `npx playwright install chromium`.
+
+**Parity rule:** any new human-persistable feature must ship API + MCP support together. See [AGENTS.md](./AGENTS.md).
 
 ## Useful scripts
 
