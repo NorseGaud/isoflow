@@ -1,5 +1,5 @@
-import { MARKDOWN_EMPTY_VALUE } from 'src/config';
 import { ItemReference } from 'src/types';
+import { isMarkdownEmpty } from 'src/utils/isMarkdownEmpty';
 
 export type StackedItemOption = {
   id: string;
@@ -11,11 +11,14 @@ export type StackedItemOption = {
 const toPlainDescription = (
   description: string | undefined
 ): string | null => {
-  if (!description || description === MARKDOWN_EMPTY_VALUE) {
+  if (!description || isMarkdownEmpty(description)) {
     return null;
   }
 
-  const text = description.replace(/<[^>]*>/g, '').trim();
+  const text = description
+    .replace(/<[^>]*>/g, '')
+    .replace(/&nbsp;/gi, ' ')
+    .trim();
 
   return text || null;
 };

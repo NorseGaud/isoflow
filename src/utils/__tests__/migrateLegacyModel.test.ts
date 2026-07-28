@@ -159,7 +159,7 @@ describe('migrateImportedModel', () => {
     ).toBe(true);
   });
 
-  test('returns current-format models unchanged', () => {
+  test('returns current-format models unchanged when label heights are valid', () => {
     const current = {
       version: '1.0.0',
       title: 'Current',
@@ -170,5 +170,26 @@ describe('migrateImportedModel', () => {
     };
 
     expect(migrateImportedModel(current)).toBe(current);
+  });
+
+  test('heals invalid labelHeight values on import', () => {
+    const current = {
+      version: '1.0.0',
+      title: 'Current',
+      icons: [],
+      colors: [{ id: 'color1', value: '#fff' }],
+      items: [{ id: 'item1', name: 'Node' }],
+      views: [
+        {
+          id: 'view1',
+          name: 'View',
+          items: [{ id: 'item1', tile: { x: 0, y: 0 }, labelHeight: 0 }]
+        }
+      ]
+    };
+
+    const migrated = migrateImportedModel(current) as typeof current;
+
+    expect(migrated.views[0].items[0].labelHeight).toBe(80);
   });
 });

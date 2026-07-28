@@ -1,4 +1,5 @@
 import type { InitialData, Model } from 'src/types';
+import { resolveLabelHeight } from './resolveLabelHeight';
 
 type UnknownRecord = Record<string, unknown>;
 
@@ -198,11 +199,66 @@ const migratePhysicalTopologyExport = (data: UnknownRecord): InitialData => {
   };
 };
 
+const normalizeViewItemLabelHeights = (data: unknown): unknown => {
+  if (!isRecord(data) || !Array.isArray(data.views)) {
+    return data;
+  }
+
+  let changed = false;
+
+  const views = data.views.map((view) => {
+    if (!isRecord(view) || !Array.isArray(view.items)) {
+      return view;
+    }
+
+    let viewChanged = false;
+
+    const items = view.items.map((item) => {
+      if (!isRecord(item) || typeof item.labelHeight !== 'number') {
+        return item;
+      }
+
+      const resolved = resolveLabelHeight(item.labelHeight);
+
+      if (resolved === item.labelHeight) {
+        return item;
+      }
+
+      viewChanged = true;
+
+      return {
+        ...item,
+        labelHeight: resolved
+      };
+    });
+
+    if (!viewChanged) {
+      return view;
+    }
+
+    changed = true;
+
+    return {
+      ...view,
+      items
+    };
+  });
+
+  if (!changed) {
+    return data;
+  }
+
+  return {
+    ...data,
+    views
+  };
+};
+
 /** Normalize imported JSON (including Isoflow Pro physicalTopology exports). */
 export const migrateImportedModel = (data: unknown): unknown => {
   if (isLegacyPhysicalTopologyExport(data)) {
     return migratePhysicalTopologyExport(data as UnknownRecord);
   }
 
-  return data;
+  return normalizeViewItemLabelHeights(data);
 };

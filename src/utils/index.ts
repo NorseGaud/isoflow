@@ -8,3 +8,5 @@ export * from './model';
 export * from './customIconStorage';
 export * from './migrateLegacyModel';
 export * from './isNodeLabelVisible';
+export * from './isMarkdownEmpty';
+export * from './resolveLabelHeight';

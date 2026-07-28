@@ -41,15 +41,15 @@ export const MarkdownEditor = ({
           borderColor: 'grey.300',
           borderTop: 'auto',
           borderRadius: 1.5,
-          height,
+          height: readOnly ? 'auto' : height,
           color: 'text.secondary'
         },
         '.ql-container.ql-snow': {
-          ...(readOnly ? { border: 'none' } : {}),
+          ...(readOnly ? { border: 'none', height: 'auto' } : {}),
           ...styles
         },
         '.ql-editor': {
-          ...(readOnly ? { p: 0 } : {})
+          ...(readOnly ? { p: 0, height: 'auto' } : {})
         }
       }}
     >

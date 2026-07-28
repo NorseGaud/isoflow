@@ -1,11 +1,12 @@
 import React, { useMemo } from 'react';
 import { Box, Typography, Stack } from '@mui/material';
+import { PROJECTED_TILE_SIZE } from 'src/config';
 import {
-  PROJECTED_TILE_SIZE,
-  DEFAULT_LABEL_HEIGHT,
-  MARKDOWN_EMPTY_VALUE
-} from 'src/config';
-import { getTilePosition, isNodeLabelVisible } from 'src/utils';
+  getTilePosition,
+  isNodeLabelVisible,
+  isMarkdownEmpty,
+  resolveLabelHeight
+} from 'src/utils';
 import { useIcon } from 'src/hooks/useIcon';
 import { ViewItem } from 'src/types';
 import { useModelItem } from 'src/hooks/useModelItem';
@@ -29,11 +30,9 @@ export const Node = ({ node, order }: Props) => {
   }, [node.tile]);
 
   const description = useMemo(() => {
-    if (
-      modelItem.description === undefined ||
-      modelItem.description === MARKDOWN_EMPTY_VALUE
-    )
+    if (isMarkdownEmpty(modelItem.description)) {
       return null;
+    }
 
     return modelItem.description;
   }, [modelItem.description]);
@@ -61,7 +60,7 @@ export const Node = ({ node, order }: Props) => {
               <ExpandableLabel
                 maxWidth={250}
                 expandDirection="BOTTOM"
-                labelHeight={node.labelHeight ?? DEFAULT_LABEL_HEIGHT}
+                labelHeight={resolveLabelHeight(node.labelHeight)}
               >
                 <Stack spacing={1}>
                   {modelItem.name && (
@@ -73,10 +72,9 @@ export const Node = ({ node, order }: Props) => {
                       {modelItem.name}
                     </Typography>
                   )}
-                  {modelItem.description &&
-                    modelItem.description !== MARKDOWN_EMPTY_VALUE && (
-                      <MarkdownEditor value={modelItem.description} readOnly />
-                    )}
+                {description && (
+                  <MarkdownEditor value={description} readOnly />
+                )}
                 </Stack>
               </ExpandableLabel>
             </Box>
