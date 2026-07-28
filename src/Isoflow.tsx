@@ -13,6 +13,7 @@ import { UiOverlay } from 'src/components/UiOverlay/UiOverlay';
 import { UiStateProvider, useUiStateStore } from 'src/stores/uiStateStore';
 import { INITIAL_DATA, MAIN_MENU_OPTIONS } from 'src/config';
 import { useInitialDataManager } from 'src/hooks/useInitialDataManager';
+import { AgentBridge } from 'src/components/AgentBridge/AgentBridge';
 
 const App = ({
   initialData,
@@ -22,7 +23,8 @@ const App = ({
   onModelUpdated,
   enableDebugTools = false,
   editorMode = 'EDITABLE',
-  renderer
+  renderer,
+  bridge
 }: IsoflowProps) => {
   const uiStateActions = useUiStateStore((state) => {
     return state.actions;
@@ -61,23 +63,31 @@ const App = ({
     uiStateActions.setEnableDebugTools(enableDebugTools);
   }, [enableDebugTools, uiStateActions]);
 
-  if (!initialDataManager.isReady) return null;
-
   return (
     <>
       <GlobalStyles />
-      <Box
-        sx={{
-          width,
-          height,
-          position: 'relative',
-          overflow: 'hidden',
-          transform: 'translateZ(0)'
-        }}
-      >
-        <Renderer {...renderer} />
-        <UiOverlay />
-      </Box>
+      {bridge && (
+        <AgentBridge
+          url={bridge.url}
+          projectId={bridge.projectId}
+          knownRevision={bridge.knownRevision}
+          onRemoteRevision={bridge.onRemoteRevision}
+        />
+      )}
+      {initialDataManager.isReady ? (
+        <Box
+          sx={{
+            width,
+            height,
+            position: 'relative',
+            overflow: 'hidden',
+            transform: 'translateZ(0)'
+          }}
+        >
+          <Renderer {...renderer} />
+          <UiOverlay />
+        </Box>
+      ) : null}
     </>
   );
 };

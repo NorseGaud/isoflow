@@ -7,6 +7,13 @@ export type InitialData = Model & {
   view?: string;
 };
 
+export type IsoflowBridgeProps = {
+  url: string;
+  projectId: string;
+  knownRevision?: number;
+  onRemoteRevision?: (revision: number) => void;
+};
+
 export interface IsoflowProps {
   initialData?: InitialData;
   mainMenuOptions?: MainMenuOptions;
@@ -16,4 +23,6 @@ export interface IsoflowProps {
   enableDebugTools?: boolean;
   editorMode?: keyof typeof EditorModeEnum;
   renderer?: RendererProps;
+  /** Live sync with isoflow-server WebSocket (agent / multi-tab updates). */
+  bridge?: IsoflowBridgeProps;
 }

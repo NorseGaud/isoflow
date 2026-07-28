@@ -35,6 +35,18 @@ Install both the editor and isopacks from [npm](https://www.npmjs.com/package/is
 
 See our [documentation](https://isoflow.io/docs) for more information.
 
+## Local app + MCP (this fork)
+
+This fork includes a Node API server, live WebSocket bridge, and an MCP server so agents can build diagrams from a prompt:
+
+```bash
+npm run start:server   # API + WS on :9324
+npm start              # web app on :9323
+# MCP: see mcp.config.example.json
+```
+
+Details are in [CONTRIBUTING.md](./CONTRIBUTING.md).
+
 ## Professional support
 For professional support, please consider purchasing a license for Isoflow Pro.  Isoflow Pro includes additional features and support options.  For more information, visit [isoflow.io](https://isoflow.io).
 

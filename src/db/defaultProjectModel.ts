@@ -1,20 +1,6 @@
-/* eslint-disable import/no-extraneous-dependencies */
-import { flattenCollections } from '@isoflow/isopacks/dist/utils';
-import isoflowIsopack from '@isoflow/isopacks/dist/isoflow';
-import awsIsopack from '@isoflow/isopacks/dist/aws';
-import gcpIsopack from '@isoflow/isopacks/dist/gcp';
-import azureIsopack from '@isoflow/isopacks/dist/azure';
-import kubernetesIsopack from '@isoflow/isopacks/dist/kubernetes';
 import { INITIAL_DATA } from 'src/config';
 import { Colors, InitialData } from 'src/types';
-
-const isopackIcons = flattenCollections([
-  isoflowIsopack,
-  awsIsopack,
-  azureIsopack,
-  gcpIsopack,
-  kubernetesIsopack
-]);
+import { getIsopackIcons } from './icons';
 
 const defaultColors: Colors = [
   { id: 'color1', value: '#a5b8f3' },
@@ -26,11 +12,19 @@ const defaultColors: Colors = [
   { id: 'color7', value: '#b3e5e3' }
 ];
 
-export const createDefaultProjectModel = (title: string): InitialData => {
+/**
+ * Build a new empty project model.
+ * Icons are rehydrated from isopacks on read; storage keeps them stripped.
+ * For in-memory editor bootstrap you may call with `includeIsopackIcons: true`.
+ */
+export const createDefaultProjectModel = (
+  title: string,
+  options?: { includeIsopackIcons?: boolean }
+): InitialData => {
   return {
     ...INITIAL_DATA,
     title,
-    icons: isopackIcons,
+    icons: options?.includeIsopackIcons ? getIsopackIcons() : [],
     colors: defaultColors,
     items: [],
     views: [],

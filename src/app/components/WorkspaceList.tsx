@@ -12,7 +12,7 @@ import {
   FolderOutlined as FolderIcon,
   AccountTreeOutlined as ProjectIcon
 } from '@mui/icons-material';
-import { ProjectRecord, WorkspaceRecord } from 'src/db';
+import { ProjectRecord, WorkspaceRecord } from 'src/api/client';
 
 type Props = {
   workspaces: WorkspaceRecord[];

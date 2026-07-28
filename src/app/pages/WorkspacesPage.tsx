@@ -11,7 +11,7 @@ import {
   ProjectRecord,
   UserRecord,
   WorkspaceRecord
-} from 'src/db';
+} from 'src/api/client';
 import { AppShell } from '../components/AppShell';
 import { NameDialog } from '../components/NameDialog';
 import { WorkspaceList } from '../components/WorkspaceList';

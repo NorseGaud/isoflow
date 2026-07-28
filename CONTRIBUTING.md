@@ -28,27 +28,49 @@ This project includes an `.npmrc` that sets `legacy-peer-deps=true`, which is re
 
 ## Run locally
 
-Start the development server:
+Isoflow now has three processes for full agent-driven editing:
+
+1. **API server** (owns projects/models on disk) — port **9324**
+2. **Web app** (webpack-dev-server) — port **9323**
+3. **MCP server** (stdio; used by Cursor / other agents)
+
+### API server
+
+```bash
+npm run start:server
+```
+
+Persists to `~/.isoflow/isoflow.sqlite` by default. Override with `ISOFLOW_DB_PATH` / `ISOFLOW_PORT`.
+
+### Web app
+
+In a second terminal:
 
 ```bash
 npm start
 ```
 
-This launches webpack-dev-server with hot reload. Open [http://localhost:3001](http://localhost:3001) in your browser.
+Open [http://localhost:9323](http://localhost:9323). The app talks to the API server over HTTP and receives live diagram updates over WebSocket.
 
-You should see the examples playground, where you can switch between:
+On first boot, any legacy browser IndexedDB SQLite blob is uploaded once to the server (`/api/import/legacy`).
 
-- **Basic editor**
-- **Debug tools**
-- **Read-only mode**
+### MCP server
 
-Example entry point: `src/index.tsx` → `src/examples/`.
+See `mcp.config.example.json`. Point Cursor (or another MCP host) at:
+
+```bash
+npx tsx --tsconfig mcp/tsconfig.json mcp/src/server.ts
+```
+
+with `ISOFLOW_API_URL=http://localhost:9324`. Main tool: `isoflow_apply_diagram` (semantic nodes/edges → laid-out Model).
 
 ## Useful scripts
 
 | Command | Description |
 | --- | --- |
-| `npm start` | Run the local examples app on port 3001 |
+| `npm run start:server` | Run the Isoflow API + WebSocket server on port 9324 |
+| `npm start` | Run the web app on port 9323 (requires API server) |
+| `npm run start:mcp` | Run the MCP server over stdio |
 | `npm run build` | Build the library to `dist/` (webpack + TypeScript declarations) |
 | `npm run dev` | Rebuild the library on `src/` changes (watch mode via nodemon) |
 | `npm test` | Run the Jest test suite |

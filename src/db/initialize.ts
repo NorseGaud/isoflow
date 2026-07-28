@@ -1,5 +1,6 @@
 import { getDb } from './client';
 import { seedDefaults } from './seed';
+import { stripStoredProjectIcons } from './projects';
 
 let initPromise: Promise<void> | null = null;
 
@@ -9,6 +10,8 @@ export const initializeAppDb = () => {
     initPromise = (async () => {
       await getDb();
       await seedDefaults();
+      // One-time compaction for DBs that still embed full isopack icon URLs.
+      await stripStoredProjectIcons();
     })().catch((error) => {
       initPromise = null;
       throw error;
@@ -16,4 +19,9 @@ export const initializeAppDb = () => {
   }
 
   return initPromise;
+};
+
+/** Reset initialize latch — for tests only. */
+export const resetInitializeAppDbForTests = () => {
+  initPromise = null;
 };

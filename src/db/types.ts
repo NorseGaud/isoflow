@@ -17,6 +17,19 @@ export type ProjectRecord = {
   workspaceId: string;
   name: string;
   modelJson: string;
+  revision: number;
   createdAt: number;
   updatedAt: number;
 };
+
+export class RevisionConflictError extends Error {
+  readonly currentRevision: number;
+
+  constructor(currentRevision: number) {
+    super(
+      `Revision conflict: expected a different revision (current=${currentRevision})`
+    );
+    this.name = 'RevisionConflictError';
+    this.currentRevision = currentRevision;
+  }
+}

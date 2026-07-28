@@ -78,9 +78,9 @@ export const seedDefaults = async (): Promise<void> => {
       db.run(
         `
           INSERT INTO projects (
-            id, workspace_id, name, is_default, model_json, created_at, updated_at
+            id, workspace_id, name, is_default, model_json, revision, created_at, updated_at
           )
-          VALUES (?, ?, ?, ?, ?, ?, ?)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?)
         `,
         [
           INITIAL_PROJECT_ID,
@@ -88,6 +88,7 @@ export const seedDefaults = async (): Promise<void> => {
           INITIAL_NAME,
           0,
           JSON.stringify(initialModel),
+          1,
           now,
           now
         ]

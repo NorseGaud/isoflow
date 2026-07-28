@@ -10,8 +10,10 @@ import {
   Rectangle,
   Colors
 } from 'src/types';
-import { CoordsUtils } from 'src/utils';
-import { customVars } from './styles/theme';
+import { CoordsUtils } from 'src/utils/CoordsUtils';
+
+// Keep this hex inlined so Node (server/MCP) can import config without MUI.
+const DEFAULT_COLOR_VALUE = '#a5b8f3';
 
 // TODO: This file could do with better organisation and convention for easier reading.
 export const UNPROJECTED_TILE_SIZE = 100;
@@ -26,7 +28,7 @@ export const PROJECTED_TILE_SIZE = {
 
 export const DEFAULT_COLOR: Colors[0] = {
   id: '__DEFAULT__',
-  value: customVars.customPalette.defaultColor
+  value: DEFAULT_COLOR_VALUE
 };
 
 export const DEFAULT_FONT_FAMILY = 'Roboto, Arial, sans-serif';

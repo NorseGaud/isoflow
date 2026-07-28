@@ -74,6 +74,15 @@ const MIGRATIONS: string[] = [
 
     CREATE INDEX IF NOT EXISTS idx_workspaces_user_id ON workspaces(user_id);
     CREATE INDEX IF NOT EXISTS idx_projects_workspace_id ON projects(workspace_id);
+  `,
+  `
+    ALTER TABLE projects ADD COLUMN revision INTEGER NOT NULL DEFAULT 1;
+  `,
+  `
+    CREATE TABLE IF NOT EXISTS app_meta (
+      key TEXT PRIMARY KEY NOT NULL,
+      value TEXT NOT NULL
+    );
   `
 ];
 

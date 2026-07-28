@@ -1,0 +1,16 @@
+{
+  "mcpServers": {
+    "isoflow": {
+      "command": "/absolute/path/to/isoflow/node_modules/.bin/tsx",
+      "args": [
+        "--tsconfig",
+        "/absolute/path/to/isoflow/mcp/tsconfig.json",
+        "/absolute/path/to/isoflow/mcp/src/server.ts"
+      ],
+      "cwd": "/absolute/path/to/isoflow",
+      "env": {
+        "ISOFLOW_API_URL": "http://localhost:9324"
+      }
+    }
+  }
+}

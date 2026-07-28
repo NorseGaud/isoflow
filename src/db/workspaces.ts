@@ -1,4 +1,4 @@
-import { generateId } from 'src/utils';
+import { generateId } from 'src/utils/common';
 import { getDb, withDbWrite } from './client';
 import { WorkspaceRecord } from './types';
 

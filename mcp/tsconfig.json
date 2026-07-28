@@ -1,0 +1,33 @@
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+    "strict": true,
+    "skipLibCheck": true,
+    "resolveJsonModule": true,
+    "outDir": "./dist",
+    "rootDir": "..",
+    "baseUrl": "..",
+    "paths": {
+      "src/*": ["src/*"]
+    },
+    "jsx": "react-jsx",
+    "allowJs": true,
+    "noImplicitAny": true
+  },
+  "include": [
+    "./**/*.ts",
+    "../src/db/icons.ts",
+    "../src/config.ts",
+    "../src/types/**/*.ts",
+    "../src/schemas/**/*.ts",
+    "../src/utils/common.ts",
+    "../src/utils/CoordsUtils.ts",
+    "../src/utils/model.ts",
+    "../src/utils/resolveLabelHeight.ts",
+    "../src/utils/isMarkdownEmpty.ts"
+  ],
+  "exclude": ["**/__tests__/**", "../src/**/__tests__/**"]
+}

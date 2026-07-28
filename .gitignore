@@ -25,3 +25,7 @@ yarn-error.log*
 .cursor
 docs/superpowers
 .vscode
+.isoflow-dev.sqlite
+.isoflow-dev.sqlite.tmp
+*.sqlite
+*.sqlite-journal
