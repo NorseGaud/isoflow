@@ -7,3 +7,4 @@ export * from './exportOptions';
 export * from './model';
 export * from './customIconStorage';
 export * from './migrateLegacyModel';
+export * from './isNodeLabelVisible';

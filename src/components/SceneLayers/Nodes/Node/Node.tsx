@@ -5,7 +5,7 @@ import {
   DEFAULT_LABEL_HEIGHT,
   MARKDOWN_EMPTY_VALUE
 } from 'src/config';
-import { getTilePosition } from 'src/utils';
+import { getTilePosition, isNodeLabelVisible } from 'src/utils';
 import { useIcon } from 'src/hooks/useIcon';
 import { ViewItem } from 'src/types';
 import { useModelItem } from 'src/hooks/useModelItem';
@@ -52,34 +52,35 @@ export const Node = ({ node, order }: Props) => {
           top: position.y
         }}
       >
-        {(modelItem.name || description) && (
-          <Box
-            sx={{ position: 'absolute' }}
-            style={{ bottom: PROJECTED_TILE_SIZE.height / 2 }}
-          >
-            <ExpandableLabel
-              maxWidth={250}
-              expandDirection="BOTTOM"
-              labelHeight={node.labelHeight ?? DEFAULT_LABEL_HEIGHT}
+        {(modelItem.name || description) &&
+          isNodeLabelVisible(node.showLabel) && (
+            <Box
+              sx={{ position: 'absolute' }}
+              style={{ bottom: PROJECTED_TILE_SIZE.height / 2 }}
             >
-              <Stack spacing={1}>
-                {modelItem.name && (
-                  <Typography
-                    sx={{
-                      fontWeight: 600
-                    }}
-                  >
-                    {modelItem.name}
-                  </Typography>
-                )}
-                {modelItem.description &&
-                  modelItem.description !== MARKDOWN_EMPTY_VALUE && (
-                    <MarkdownEditor value={modelItem.description} readOnly />
+              <ExpandableLabel
+                maxWidth={250}
+                expandDirection="BOTTOM"
+                labelHeight={node.labelHeight ?? DEFAULT_LABEL_HEIGHT}
+              >
+                <Stack spacing={1}>
+                  {modelItem.name && (
+                    <Typography
+                      sx={{
+                        fontWeight: 600
+                      }}
+                    >
+                      {modelItem.name}
+                    </Typography>
                   )}
-              </Stack>
-            </ExpandableLabel>
-          </Box>
-        )}
+                  {modelItem.description &&
+                    modelItem.description !== MARKDOWN_EMPTY_VALUE && (
+                      <MarkdownEditor value={modelItem.description} readOnly />
+                    )}
+                </Stack>
+              </ExpandableLabel>
+            </Box>
+          )}
         {iconComponent && (
           <Box
             sx={{

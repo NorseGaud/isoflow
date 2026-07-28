@@ -1,9 +1,16 @@
 import React from 'react';
-import { Slider, Box, TextField } from '@mui/material';
+import {
+  Slider,
+  Box,
+  TextField,
+  Switch,
+  FormControlLabel
+} from '@mui/material';
 import { ModelItem, ViewItem } from 'src/types';
 import { MarkdownEditor } from 'src/components/MarkdownEditor/MarkdownEditor';
 import { useModelItem } from 'src/hooks/useModelItem';
 import { useIcon } from 'src/hooks/useIcon';
+import { isNodeLabelVisible } from 'src/utils';
 import { DeleteButton } from '../../components/DeleteButton';
 import { Section } from '../../components/Section';
 import { ROTATION_MARKS, snapRotation } from './rotationSlider';
@@ -49,7 +56,20 @@ export const NodeSettings = ({
           }}
         />
       </Section>
-      {modelItem.name && (
+      <Section>
+        <FormControlLabel
+          control={
+            <Switch
+              checked={isNodeLabelVisible(node.showLabel)}
+              onChange={(e) => {
+                onViewItemUpdated({ showLabel: e.target.checked });
+              }}
+            />
+          }
+          label="Show label on canvas"
+        />
+      </Section>
+      {modelItem.name && isNodeLabelVisible(node.showLabel) && (
         <Section title="Label height">
           <Slider
             marks
