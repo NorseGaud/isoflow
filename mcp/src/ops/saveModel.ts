@@ -3,6 +3,7 @@ import {
   putProjectModel
 } from '../api/client';
 import type { InitialData, Model } from '../../../src/types';
+import { ensureModelConnectorRouteClearance } from '../../../src/utils/ensureModelConnectorRouteClearance';
 
 export const saveModelWithRetry = async (
   projectId: string,
@@ -10,7 +11,7 @@ export const saveModelWithRetry = async (
 ): Promise<{ revision: number; model: InitialData }> => {
   const attempt = async () => {
     const current = await getProjectModel(projectId);
-    const next = mutate(current.model);
+    const next = ensureModelConnectorRouteClearance(mutate(current.model));
     return putProjectModel(projectId, next, current.revision);
   };
 

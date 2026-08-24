@@ -379,7 +379,7 @@ const createServer = () => {
     'isoflow_update_nodes',
     {
       description:
-        'Update node properties (label, description, icon, showLabel, labelHeight, rotation).',
+        'Update node properties (label, description, icon, showLabel, labelHeight, labelAngle, rotation).',
       inputSchema: {
         projectName: z.string(),
         workspaceName: z.string().optional(),
@@ -392,6 +392,7 @@ const createServer = () => {
               icon: z.string().optional(),
               showLabel: z.boolean().optional(),
               labelHeight: z.number().optional(),
+              labelAngle: z.number().optional(),
               rotation: z.number().optional()
             })
           )

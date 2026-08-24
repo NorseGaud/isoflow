@@ -29,6 +29,9 @@ export const describeModel = (model: Model): string => {
     if (viewItem.labelHeight !== undefined) {
       extras.push(`labelHeight=${viewItem.labelHeight}`);
     }
+    if (viewItem.labelAngle !== undefined) {
+      extras.push(`labelAngle=${viewItem.labelAngle}`);
+    }
     lines.push(
       `- ${viewItem.id}: "${item?.name ?? viewItem.id}" icon=${item?.icon ?? 'none'} tile=(${viewItem.tile.x},${viewItem.tile.y})${extras.length ? ` ${extras.join(' ')}` : ''}`
     );

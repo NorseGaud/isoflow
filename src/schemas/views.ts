@@ -9,6 +9,7 @@ export const viewItemSchema = z.object({
   id,
   tile: coords,
   labelHeight: z.number().optional(),
+  labelAngle: z.number().optional(),
   rotation: z.number().optional(),
   showLabel: z.boolean().optional()
 });

@@ -1,6 +1,11 @@
 import { Connector } from 'src/types';
 import { produce } from 'immer';
-import { getItemByIdOrThrow, getConnectorPath, getAllAnchors } from 'src/utils';
+import {
+  getItemByIdOrThrow,
+  getConnectorPath,
+  getAllAnchors,
+  ensureConnectorRouteClearance
+} from 'src/utils';
 import { validateConnector } from 'src/schemas/validation';
 import { State, ViewReducerContext } from './types';
 
@@ -39,12 +44,22 @@ export const syncConnector = (
       draft.scene = stateAfterDelete.scene;
       draft.model = stateAfterDelete.model;
     } else {
+      const clearedConnector = ensureConnectorRouteClearance(
+        connector.value,
+        view.value
+      );
+
+      if (clearedConnector.anchors !== connector.value.anchors) {
+        draft.model.views[view.index].connectors![connector.index] =
+          clearedConnector;
+      }
+
       const path = getConnectorPath({
-        anchors: connector.value.anchors,
+        anchors: clearedConnector.anchors,
         view: view.value
       });
 
-      draft.scene.connectors[connector.value.id] = { path };
+      draft.scene.connectors[clearedConnector.id] = { path };
     }
   });
 

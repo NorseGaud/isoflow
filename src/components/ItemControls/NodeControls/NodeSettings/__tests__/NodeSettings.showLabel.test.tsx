@@ -46,7 +46,7 @@ const baseNode: ViewItem = {
 };
 
 describe('NodeSettings showLabel', () => {
-  test('shows Label height when showLabel is omitted (legacy visible)', () => {
+  test('shows Length when showLabel is omitted (legacy visible)', () => {
     render(
       <NodeSettings
         node={baseNode}
@@ -57,10 +57,11 @@ describe('NodeSettings showLabel', () => {
     );
 
     expect(screen.getByText('Show label on canvas')).toBeTruthy();
-    expect(screen.getByText('Label height')).toBeTruthy();
+    expect(screen.getByText('Length')).toBeTruthy();
+    expect(screen.getByText('Line angle')).toBeTruthy();
   });
 
-  test('hides Label height when showLabel is false', () => {
+  test('hides Length when showLabel is false', () => {
     render(
       <NodeSettings
         node={{ ...baseNode, showLabel: false }}
@@ -70,7 +71,7 @@ describe('NodeSettings showLabel', () => {
       />
     );
 
-    expect(screen.queryByText('Label height')).toBeNull();
+    expect(screen.queryByText('Length')).toBeNull();
   });
 
   test('toggling switch updates showLabel', async () => {

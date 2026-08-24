@@ -47,6 +47,7 @@ export const VIEW_DEFAULTS: Required<
 
 export const VIEW_ITEM_DEFAULTS: Required<Omit<ViewItem, 'id' | 'tile'>> = {
   labelHeight: 80,
+  labelAngle: 0,
   rotation: 0,
   showLabel: false
 };

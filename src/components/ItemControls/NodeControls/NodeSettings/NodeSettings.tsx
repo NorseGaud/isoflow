@@ -10,7 +10,7 @@ import { ModelItem, ViewItem } from 'src/types';
 import { MarkdownEditor } from 'src/components/MarkdownEditor/MarkdownEditor';
 import { useModelItem } from 'src/hooks/useModelItem';
 import { useIcon } from 'src/hooks/useIcon';
-import { isNodeLabelVisible, resolveLabelHeight } from 'src/utils';
+import { isNodeLabelVisible, resolveLabelHeight, resolveLabelAngle } from 'src/utils';
 import { DeleteButton } from '../../components/DeleteButton';
 import { Section } from '../../components/Section';
 import { ROTATION_MARKS, snapRotation } from './rotationSlider';
@@ -70,19 +70,34 @@ export const NodeSettings = ({
         />
       </Section>
       {modelItem.name && isNodeLabelVisible(node.showLabel) && (
-        <Section title="Label height">
-          <Slider
-            marks
-            step={20}
-            min={60}
-            max={280}
-            value={resolveLabelHeight(node.labelHeight)}
-            onChange={(e, newHeight) => {
-              const labelHeight = newHeight as number;
-              onViewItemUpdated({ labelHeight });
-            }}
-          />
-        </Section>
+        <>
+          <Section title="Length">
+            <Slider
+              marks
+              step={20}
+              min={60}
+              max={280}
+              value={resolveLabelHeight(node.labelHeight)}
+              onChange={(e, newHeight) => {
+                const labelHeight = newHeight as number;
+                onViewItemUpdated({ labelHeight });
+              }}
+            />
+          </Section>
+          <Section title="Line angle">
+            <Slider
+              marks={ROTATION_MARKS}
+              step={1}
+              min={0}
+              max={360}
+              value={resolveLabelAngle(node.labelAngle)}
+              onChange={(e, newAngle) => {
+                const labelAngle = snapRotation(newAngle as number);
+                onViewItemUpdated({ labelAngle });
+              }}
+            />
+          </Section>
+        </>
       )}
       {!icon.isIsometric && (
         <Section title="Rotation">

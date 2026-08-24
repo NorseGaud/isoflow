@@ -5,7 +5,8 @@ import {
   getTilePosition,
   isNodeLabelVisible,
   isMarkdownEmpty,
-  resolveLabelHeight
+  resolveLabelHeight,
+  resolveLabelAngle
 } from 'src/utils';
 import { useIcon } from 'src/hooks/useIcon';
 import { ViewItem } from 'src/types';
@@ -61,6 +62,7 @@ export const Node = ({ node, order }: Props) => {
                 maxWidth={250}
                 expandDirection="BOTTOM"
                 labelHeight={resolveLabelHeight(node.labelHeight)}
+                labelAngle={resolveLabelAngle(node.labelAngle)}
               >
                 <Stack spacing={1}>
                   {modelItem.name && (

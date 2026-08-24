@@ -7,6 +7,8 @@ interface Props {
 }
 
 export const ConnectorLabels = ({ connectors }: Props) => {
+  const { items } = useScene();
+
   return (
     <>
       {connectors
@@ -14,7 +16,15 @@ export const ConnectorLabels = ({ connectors }: Props) => {
           return Boolean(connector.description);
         })
         .map((connector) => {
-          return <ConnectorLabel key={connector.id} connector={connector} />;
+          return (
+            <ConnectorLabel
+              key={connector.id}
+              connector={connector}
+              nodeTiles={items.map((item) => {
+                return item.tile;
+              })}
+            />
+          );
         })}
     </>
   );

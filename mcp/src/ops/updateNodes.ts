@@ -8,6 +8,7 @@ export type NodeUpdate = {
   icon?: string;
   showLabel?: boolean;
   labelHeight?: number;
+  labelAngle?: number;
   rotation?: number;
 };
 
@@ -52,6 +53,10 @@ export const applyNodeUpdates = (
         update.labelHeight !== undefined
           ? update.labelHeight
           : viewItem.labelHeight,
+      labelAngle:
+        update.labelAngle !== undefined
+          ? update.labelAngle
+          : viewItem.labelAngle,
       rotation:
         update.rotation !== undefined ? update.rotation : viewItem.rotation
     };
