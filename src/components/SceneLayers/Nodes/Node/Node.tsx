@@ -6,9 +6,11 @@ import {
   isNodeLabelVisible,
   isMarkdownEmpty,
   resolveLabelHeight,
-  resolveLabelAngle
+  resolveNodeLabelAngle
 } from 'src/utils';
 import { useIcon } from 'src/hooks/useIcon';
+import { useScene } from 'src/hooks/useScene';
+import { useModelStore } from 'src/stores/modelStore';
 import { ViewItem } from 'src/types';
 import { useModelItem } from 'src/hooks/useModelItem';
 import { ExpandableLabel } from 'src/components/Label/ExpandableLabel';
@@ -21,6 +23,10 @@ interface Props {
 
 export const Node = ({ node, order }: Props) => {
   const modelItem = useModelItem(node.id);
+  const model = useModelStore((state) => {
+    return state;
+  });
+  const { currentView } = useScene();
   const { iconComponent } = useIcon(modelItem.icon, node.rotation ?? 0);
 
   const position = useMemo(() => {
@@ -37,6 +43,30 @@ export const Node = ({ node, order }: Props) => {
 
     return modelItem.description;
   }, [modelItem.description]);
+
+  const labelAngle = useMemo(() => {
+    if (!isNodeLabelVisible(node.showLabel) || !modelItem.name) {
+      return 0;
+    }
+
+    return resolveNodeLabelAngle(
+      node.id,
+      node.tile,
+      resolveLabelHeight(node.labelHeight),
+      node.labelAngle,
+      model,
+      currentView
+    );
+  }, [
+    currentView,
+    model,
+    modelItem.name,
+    node.id,
+    node.labelAngle,
+    node.labelHeight,
+    node.showLabel,
+    node.tile
+  ]);
 
   return (
     <Box
@@ -62,7 +92,7 @@ export const Node = ({ node, order }: Props) => {
                 maxWidth={250}
                 expandDirection="BOTTOM"
                 labelHeight={resolveLabelHeight(node.labelHeight)}
-                labelAngle={resolveLabelAngle(node.labelAngle)}
+                labelAngle={labelAngle}
               >
                 <Stack spacing={1}>
                   {modelItem.name && (

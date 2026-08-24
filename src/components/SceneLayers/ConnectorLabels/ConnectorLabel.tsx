@@ -3,6 +3,7 @@ import { Box, Typography } from '@mui/material';
 import { useScene } from 'src/hooks/useScene';
 import { useColor } from 'src/hooks/useColor';
 import {
+  collectViewElementBounds,
   getTilePosition,
   resolveConnectorLabelStyle,
   resolveConnectorLabelTile
@@ -10,6 +11,7 @@ import {
 import { PROJECTED_TILE_SIZE } from 'src/config';
 import { Label } from 'src/components/Label/Label';
 import type { Coords } from 'src/types';
+import { useModelStore } from 'src/stores/modelStore';
 
 interface Props {
   connector: ReturnType<typeof useScene>['connectors'][0];
@@ -18,14 +20,26 @@ interface Props {
 
 export const ConnectorLabel = ({ connector, nodeTiles }: Props) => {
   const color = useColor(connector.color);
+  const model = useModelStore((state) => {
+    return state;
+  });
+  const { currentView } = useScene();
   const labelPosition = useMemo(() => {
+    const avoidBoxes = collectViewElementBounds(model, currentView)
+      .filter((entry) => {
+        return entry.id !== `${connector.id}:label`;
+      })
+      .map((entry) => {
+        return entry.box;
+      });
     const tile = resolveConnectorLabelTile({
       path: connector.path,
-      nodeTiles
+      nodeTiles,
+      avoidBoxes
     });
 
     return getTilePosition({ tile });
-  }, [connector.path, nodeTiles]);
+  }, [connector.id, connector.path, currentView, model, nodeTiles]);
 
   const labelStyle = useMemo(() => {
     return resolveConnectorLabelStyle(connector.labelEmphasis, color.value);

@@ -1,15 +1,45 @@
-import type { Connector, View } from 'src/types';
+import type { Connector, InitialData, Model, View } from 'src/types';
+import { collectViewElementBounds, getConnectorLabelBox } from './elementBounds';
+import { boxesOverlap } from './elementOverlap';
 import { generateId } from './common';
 import { getConnectorPath } from './renderer';
 import {
   getViewItemTiles,
-  pathLabelTileIsBlocked,
+  isTileBlockedForConnectorLabel,
+  resolveConnectorLabelTile,
   suggestConnectorWaypoint
 } from './resolveConnectorLabelTile';
 
+const connectorLabelIsBlocked = (
+  path: ReturnType<typeof getConnectorPath>,
+  nodeTiles: ReturnType<typeof getViewItemTiles>,
+  avoidBoxes: ReturnType<typeof collectViewElementBounds>[number]['box'][]
+) => {
+  const defaultLabelTile = resolveConnectorLabelTile({
+    path,
+    nodeTiles
+  });
+
+  if (isTileBlockedForConnectorLabel(defaultLabelTile, nodeTiles)) {
+    return true;
+  }
+
+  const labelTile = resolveConnectorLabelTile({
+    path,
+    nodeTiles,
+    avoidBoxes
+  });
+  const labelBox = getConnectorLabelBox(labelTile);
+
+  return avoidBoxes.some((box) => {
+    return boxesOverlap(labelBox, box);
+  });
+};
+
 export const ensureConnectorRouteClearance = (
   connector: Connector,
-  view: View
+  view: View,
+  model: InitialData | Model
 ): Connector => {
   const itemAnchors = connector.anchors.filter((anchor) => {
     return Boolean(anchor.ref.item);
@@ -20,13 +50,25 @@ export const ensureConnectorRouteClearance = (
   }
 
   const nodeTiles = getViewItemTiles(view.items ?? []);
+  const avoidBoxes = collectViewElementBounds(model, view)
+    .filter((entry) => {
+      return entry.id !== `${connector.id}:label`;
+    })
+    .map((entry) => {
+      return entry.box;
+    });
   const path = getConnectorPath({ anchors: connector.anchors, view });
 
-  if (!pathLabelTileIsBlocked(path, nodeTiles)) {
+  if (!connectorLabelIsBlocked(path, nodeTiles, avoidBoxes)) {
     return connector;
   }
 
-  const waypoint = suggestConnectorWaypoint(connector, view, nodeTiles);
+  const waypoint = suggestConnectorWaypoint(
+    connector,
+    view,
+    nodeTiles,
+    avoidBoxes
+  );
 
   if (!waypoint) {
     return connector;

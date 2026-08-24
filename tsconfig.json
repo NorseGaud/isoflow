@@ -18,7 +18,15 @@
     "skipLibCheck": true,
     "useUnknownInCatchVariables": false
   },
-  "exclude": ["node_modules", "./dist", "./docs", "./server", "./mcp", "./scripts"],
+  "exclude": [
+    "node_modules",
+    "./dist",
+    "./docs",
+    "./server",
+    "./mcp",
+    "./scripts",
+    "**/__tests__/**"
+  ],
   "include": [
     "**/*.ts",
     "**/*.tsx",

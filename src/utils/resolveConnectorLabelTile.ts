@@ -1,5 +1,10 @@
 import type { Coords, Connector, ConnectorPath, View, ViewItem } from 'src/types';
 import { CoordsUtils } from './CoordsUtils';
+import {
+  type AxisAlignedBox,
+  getConnectorLabelBox
+} from './elementBounds';
+import { boxesOverlap } from './elementOverlap';
 import { connectorPathTileToGlobal, getAnchorTile, getConnectorPath } from './renderer';
 
 export const isTileNearNode = (
@@ -27,12 +32,14 @@ interface ResolveConnectorLabelTile {
   path: ConnectorPath;
   nodeTiles: Coords[];
   labelPadding?: number;
+  avoidBoxes?: AxisAlignedBox[];
 }
 
 export const resolveConnectorLabelTile = ({
   path,
   nodeTiles,
-  labelPadding = 1
+  labelPadding = 1,
+  avoidBoxes = []
 }: ResolveConnectorLabelTile): Coords => {
   const { tiles, rectangle } = path;
 
@@ -49,6 +56,18 @@ export const resolveConnectorLabelTile = ({
   const scoreTile = (tile: Coords, index: number) => {
     if (isTileBlockedForConnectorLabel(tile, nodeTiles, labelPadding)) {
       return Number.NEGATIVE_INFINITY;
+    }
+
+    if (avoidBoxes.length > 0) {
+      const labelBox = getConnectorLabelBox(tile);
+
+      if (
+        avoidBoxes.some((box) => {
+          return boxesOverlap(labelBox, box);
+        })
+      ) {
+        return Number.NEGATIVE_INFINITY;
+      }
     }
 
     const nearestNodeDistance = nodeTiles.reduce((minDistance, nodeTile) => {
@@ -85,15 +104,29 @@ export const getViewItemTiles = (items: ViewItem[]) => {
 export const pathLabelTileIsBlocked = (
   path: ConnectorPath,
   nodeTiles: Coords[],
-  labelPadding = 1
+  labelPadding = 1,
+  avoidBoxes: AxisAlignedBox[] = []
 ) => {
   const labelTile = resolveConnectorLabelTile({
     path,
     nodeTiles,
-    labelPadding
+    labelPadding,
+    avoidBoxes
   });
 
-  return isTileBlockedForConnectorLabel(labelTile, nodeTiles, labelPadding);
+  if (isTileBlockedForConnectorLabel(labelTile, nodeTiles, labelPadding)) {
+    return true;
+  }
+
+  if (avoidBoxes.length === 0) {
+    return false;
+  }
+
+  const labelBox = getConnectorLabelBox(labelTile);
+
+  return avoidBoxes.some((box) => {
+    return boxesOverlap(labelBox, box);
+  });
 };
 
 const buildWaypointCandidates = (from: Coords, to: Coords) => {
@@ -131,7 +164,8 @@ const buildWaypointCandidates = (from: Coords, to: Coords) => {
 export const suggestConnectorWaypoint = (
   connector: Connector,
   view: View,
-  nodeTiles: Coords[]
+  nodeTiles: Coords[],
+  avoidBoxes: AxisAlignedBox[] = []
 ): Coords | null => {
   const from = getAnchorTile(connector.anchors[0], view);
   const to = getAnchorTile(
@@ -150,7 +184,7 @@ export const suggestConnectorWaypoint = (
     };
     const path = getConnectorPath({ anchors: routedConnector.anchors, view });
 
-    if (!pathLabelTileIsBlocked(path, nodeTiles)) {
+    if (!pathLabelTileIsBlocked(path, nodeTiles, 1, avoidBoxes)) {
       return candidate;
     }
   }

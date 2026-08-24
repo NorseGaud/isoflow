@@ -1,6 +1,6 @@
 import { produce } from 'immer';
 import { View } from 'src/types';
-import { getItemByIdOrThrow } from 'src/utils';
+import { getItemByIdOrThrow, syncViewItemLabels } from 'src/utils';
 import { VIEW_DEFAULTS, INITIAL_SCENE_STATE } from 'src/config';
 import type { ViewReducerContext, State, ViewReducerParams } from './types';
 import { syncConnector } from './connector';
@@ -27,8 +27,17 @@ export const updateViewTimestamp = (ctx: ViewReducerContext): State => {
 export const syncScene = ({ viewId, state }: ViewReducerContext): State => {
   const view = getItemByIdOrThrow(state.model.views, viewId);
 
+  const stateAfterLabelsSynced = produce(state, (draft) => {
+    const draftView = getItemByIdOrThrow(draft.model.views, viewId);
+    draft.model.views[draftView.index].items = syncViewItemLabels(
+      draftView.value.items,
+      draft.model,
+      draftView.value
+    );
+  });
+
   const startingState: State = {
-    model: state.model,
+    model: stateAfterLabelsSynced.model,
     scene: INITIAL_SCENE_STATE
   };
 

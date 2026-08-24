@@ -19,6 +19,7 @@ import {
 } from './api/client';
 import { compileDiagramSpec } from './compiler/compile';
 import { describeModel } from './describe';
+import { formatViewOverlaps, findViewOverlaps } from '../../src/utils/elementOverlap';
 import { buildIconIndex } from './icons/index';
 import { searchIcons } from './icons/match';
 import { exportModelJson, importModelJson } from './importExport';
@@ -271,11 +272,7 @@ const createServer = () => {
         { projectName, title, nodes, edges, groups },
         current.model
       );
-      const saved = await putProjectModel(
-        project.id,
-        compiled,
-        current.revision
-      );
+      const saved = await saveModelWithRetry(project.id, () => compiled);
 
       return textResult(
         [
@@ -283,6 +280,36 @@ const createServer = () => {
           `Revision: ${saved.revision}`,
           '',
           describeModel(saved.model)
+        ].join('\n')
+      );
+    }
+  );
+
+  server.registerTool(
+    'isoflow_diagram_overlaps',
+    {
+      description:
+        'Report whether diagram elements touch or overlap in screen space (node tiles, node labels, connector labels). Returns overlap pairs and whether clearance is needed.',
+      inputSchema: {
+        projectName: z.string(),
+        workspaceName: z.string().optional()
+      }
+    },
+    async ({ projectName, workspaceName }) => {
+      const project = await resolveProjectByName(projectName, workspaceName);
+      const { model, revision } = await getProjectModel(project.id);
+      const view = model.views[0];
+
+      if (!view) {
+        return textResult(`Project "${project.name}" has no view.`);
+      }
+
+      const overlaps = findViewOverlaps(model, view);
+
+      return textResult(
+        [
+          `Project "${project.name}" revision ${revision}`,
+          formatViewOverlaps(overlaps)
         ].join('\n')
       );
     }
@@ -363,11 +390,7 @@ const createServer = () => {
         current.model
       );
 
-      const saved = await putProjectModel(
-        project.id,
-        compiled,
-        current.revision
-      );
+      const saved = await saveModelWithRetry(project.id, () => compiled);
 
       return textResult(
         `Added nodes. Revision ${saved.revision}\n\n${describeModel(saved.model)}`

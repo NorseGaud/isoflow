@@ -1,5 +1,6 @@
 import type { Model } from '../../src/types';
 import { getGroupConnectorIds } from '../../src/utils/groupGeometry';
+import { findViewOverlaps, formatViewOverlaps } from '../../src/utils/elementOverlap';
 
 /** Compact text description — never includes icon URLs. */
 export const describeModel = (model: Model): string => {
@@ -94,6 +95,9 @@ export const describeModel = (model: Model): string => {
       );
     });
   }
+
+  lines.push('');
+  lines.push(formatViewOverlaps(findViewOverlaps(model, view)));
 
   return lines.join('\n');
 };

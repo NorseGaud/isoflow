@@ -46,7 +46,8 @@ export const syncConnector = (
     } else {
       const clearedConnector = ensureConnectorRouteClearance(
         connector.value,
-        view.value
+        view.value,
+        draft.model
       );
 
       if (clearedConnector.anchors !== connector.value.anchors) {

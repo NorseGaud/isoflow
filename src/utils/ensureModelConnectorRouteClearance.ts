@@ -10,7 +10,7 @@ export const ensureModelConnectorRouteClearance = (
   }
 
   const clearedConnectors = view.connectors.map((connector) => {
-    return ensureConnectorRouteClearance(connector, view);
+    return ensureConnectorRouteClearance(connector, view, model);
   });
 
   const changed = clearedConnectors.some((connector, index) => {

@@ -25,6 +25,7 @@ import {
   upsertCustomIcons,
   deleteCustomIcon
 } from '../src/db';
+import { ensureModelLayoutClearance } from '../src/utils/ensureModelLayoutClearance';
 import { importLegacySqliteBytes } from './importLegacy';
 import { broadcastModelChanged } from './wsHub';
 
@@ -257,7 +258,7 @@ export const createApp = () => {
 
       const result = await updateProjectModel(
         req.params.id,
-        model,
+        ensureModelLayoutClearance(model),
         Number.isFinite(expectedRevision) ? expectedRevision : undefined
       );
 
