@@ -86,51 +86,6 @@ const hierarchy: WorkspaceSeed[] = [
         }
       },
       {
-        name: 'Getting Started Checklist',
-        diagram: {
-          projectName: 'Getting Started Checklist',
-          title: 'First-time setup with the CLI',
-          nodes: [
-            {
-              key: 'install',
-              label: '1. Install Anka',
-              icon: 'download',
-              description: 'Install the Virtualization package on the Mac'
-            },
-            {
-              key: 'license',
-              label: '2. Activate license',
-              icon: 'key',
-              description: 'anka license activate'
-            },
-            {
-              key: 'create',
-              label: '3. Create a VM',
-              icon: 'plus',
-              description: 'anka create — pick a macOS version'
-            },
-            {
-              key: 'prepare',
-              label: '4. Prepare the VM',
-              icon: 'settings',
-              description: 'Install Xcode, tools, run click scripts'
-            },
-            {
-              key: 'snapshot',
-              label: '5. Suspend or tag',
-              icon: 'save',
-              description: 'Freeze a clean starting state for reuse'
-            }
-          ],
-          edges: [
-            { from: 'install', to: 'license', label: 'next' },
-            { from: 'license', to: 'create', label: 'next' },
-            { from: 'create', to: 'prepare', label: 'next' },
-            { from: 'prepare', to: 'snapshot', label: 'next' }
-          ]
-        }
-      },
-      {
         name: 'CLI Feature Map',
         diagram: {
           projectName: 'CLI Feature Map',

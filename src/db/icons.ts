@@ -52,9 +52,12 @@ export const stripIsopackIcons = <T extends Pick<Model, 'icons'>>(
   };
 };
 
+/** Compiler/MCP stubs; real isopack entries must win on rehydrate. */
+const isIsopackStub = (icon: Icon) => icon.url.startsWith('isopack://');
+
 /**
  * Merge isopack icons with any custom icons stored on the model.
- * Custom icons win on id collision.
+ * Custom icons win on id collision unless the stored row is an isopack stub.
  */
 export const rehydrateIcons = <T extends Pick<Model, 'icons'>>(model: T): T => {
   const customById = new Map(
@@ -64,7 +67,12 @@ export const rehydrateIcons = <T extends Pick<Model, 'icons'>>(model: T): T => {
   );
 
   const merged: Icon[] = getIsopackIcons().map((icon) => {
-    return customById.get(icon.id) ?? icon;
+    const stored = customById.get(icon.id);
+    if (stored && !isIsopackStub(stored)) {
+      return stored;
+    }
+
+    return icon;
   });
 
   model.icons.forEach((icon) => {

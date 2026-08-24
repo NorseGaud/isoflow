@@ -43,4 +43,23 @@ describe('icon strip/rehydrate', () => {
       rehydrated.icons.some((icon) => icon.id === 'custom-1')
     ).toBe(true);
   });
+
+  it('replaces isopack stubs with real isopack icons on rehydrate', () => {
+    const rehydrated = rehydrateIcons({
+      icons: [
+        {
+          id: 'server',
+          name: 'server',
+          url: 'isopack://server',
+          collection: 'isoflow'
+        }
+      ]
+    });
+
+    const server = rehydrated.icons.find((icon) => icon.id === 'server');
+    expect(server?.url.startsWith('isopack://')).toBe(false);
+    expect((server as { isIsometric?: boolean } | undefined)?.isIsometric).toBe(
+      true
+    );
+  });
 });

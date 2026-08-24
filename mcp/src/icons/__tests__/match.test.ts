@@ -25,4 +25,16 @@ describe('icon matcher', () => {
       expect(match.collection).toBe('kubernetes');
     });
   });
+
+  it('prefers isoflow isometric icons over flat cloud icons for generic terms', () => {
+    expect(resolveIconId('server')).toBe('server');
+    expect(resolveIconId('lock')).toBe('lock');
+    expect(resolveIconId('storage')).toBe('storage');
+    expect(resolveIconId('vm')).toBe('vm');
+  });
+
+  it('still resolves vendor-specific icons from cloud isopacks', () => {
+    expect(resolveIconId('lambda')).toMatch(/lambda/i);
+    expect(resolveIconId('s3')).toMatch(/s3/i);
+  });
 });

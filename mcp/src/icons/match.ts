@@ -156,19 +156,32 @@ export const searchIcons = (
     .slice(0, limit);
 };
 
+const ISOFLOW_MATCH_MIN_SCORE = 60;
+
 export const resolveIconId = (
   query: string | undefined,
   fallback = 'server'
 ): string => {
-  if (!query) {
+  const resolveFallback = () => {
+    const isoflowFallback = searchIcons(fallback, 1, 'isoflow')[0];
+    if (isoflowFallback) return isoflowFallback.id;
+
     const fallbackMatch = searchIcons(fallback, 1)[0];
     return fallbackMatch?.id ?? 'server';
+  };
+
+  if (!query) {
+    return resolveFallback();
+  }
+
+  const isoflowMatch = searchIcons(query, 1, 'isoflow')[0];
+  if (isoflowMatch && isoflowMatch.score >= ISOFLOW_MATCH_MIN_SCORE) {
+    return isoflowMatch.id;
   }
 
   const match = searchIcons(query, 1)[0];
 
   if (match) return match.id;
 
-  const fallbackMatch = searchIcons(fallback, 1)[0];
-  return fallbackMatch?.id ?? 'server';
+  return resolveFallback();
 };
